@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#e7e0d4;font-family:'Gowun Dodum',sans-serif}
+</style>
+</helmet>
+<div style="min-height:100vh;padding:56px 48px;display:flex;flex-direction:column;gap:44px;align-items:center">
+
+  <div style="text-align:center">
+    <div style="font-size:12px;letter-spacing:4px;color:#b0a389;text-transform:uppercase">Brand Mark</div>
+    <div style="font-family:'Gowun Batang',serif;font-size:26px;color:#332f28;margin-top:8px">다니엘과 세친구 · 로고</div>
+    <div style="font-size:13px;color:#8f8672;margin-top:8px;max-width:440px;line-height:1.7">풀무불 가운데 함께 선 세 친구와, 그들을 감싸 지켜주시는 임재의 아치를 하나의 불꽃 안에 담았습니다</div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:28px;justify-content:center;align-items:flex-start">
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div style="width:200px;height:200px;border-radius:46px;background:linear-gradient(150deg,#fdf6e8,#f3e7cf);box-shadow:0 18px 40px -18px rgba(90,66,32,.5);display:flex;align-items:center;justify-content:center;padding:34px">
+        <svg viewBox="0 0 100 100" width="100%" height="100%">
+          <defs>
+            <linearGradient id="fl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4c25a"></stop><stop offset=".55" stop-color="#e0964a"></stop><stop offset="1" stop-color="#a8583a"></stop></linearGradient>
+            <radialGradient id="gl" cx="50%" cy="60%" r="46%"><stop offset="0" stop-color="#fff7e6" stop-opacity=".92"></stop><stop offset="1" stop-color="#fff7e6" stop-opacity="0"></stop></radialGradient>
+          </defs>
+          <path d="M50 8 C64 30 80 44 68 66 A22 22 0 1 1 32 66 C20 44 36 30 50 8 Z" fill="url(#fl)"></path>
+          <ellipse cx="50" cy="62" rx="21" ry="25" fill="url(#gl)"></ellipse>
+          <path d="M29 55 A24 21 0 0 1 71 55" fill="none" stroke="#fff6e4" stroke-width="2.6" opacity=".75" stroke-linecap="round"></path>
+          <g fill="#fbf1dc"><circle cx="38" cy="60" r="3.4"></circle><rect x="35" y="64" width="6" height="16" rx="3"></rect><circle cx="50" cy="57" r="3.9"></circle><rect x="46.3" y="61" width="7.4" height="19" rx="3.6"></rect><circle cx="62" cy="60" r="3.4"></circle><rect x="59" y="64" width="6" height="16" rx="3"></rect></g>
+        </svg>
+      </div>
+      <div style="font-size:12px;color:#8f8672">App Icon · Light</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div style="width:200px;height:200px;border-radius:46px;background:linear-gradient(155deg,#31281d,#221b13);box-shadow:0 18px 40px -18px rgba(20,14,6,.6);display:flex;align-items:center;justify-content:center;padding:34px">
+        <svg viewBox="0 0 100 100" width="100%" height="100%">
+          <path d="M50 8 C64 30 80 44 68 66 A22 22 0 1 1 32 66 C20 44 36 30 50 8 Z" fill="url(#fl)"></path>
+          <ellipse cx="50" cy="62" rx="21" ry="25" fill="url(#gl)"></ellipse>
+          <path d="M29 55 A24 21 0 0 1 71 55" fill="none" stroke="#fff6e4" stroke-width="2.6" opacity=".8" stroke-linecap="round"></path>
+          <g fill="#fbf1dc"><circle cx="38" cy="60" r="3.4"></circle><rect x="35" y="64" width="6" height="16" rx="3"></rect><circle cx="50" cy="57" r="3.9"></circle><rect x="46.3" y="61" width="7.4" height="19" rx="3.6"></rect><circle cx="62" cy="60" r="3.4"></circle><rect x="59" y="64" width="6" height="16" rx="3"></rect></g>
+        </svg>
+      </div>
+      <div style="font-size:12px;color:#8f8672">App Icon · Dark</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div style="width:200px;height:200px;border-radius:46px;background:#f6efe0;border:1px solid #e6dcc8;display:flex;align-items:center;justify-content:center;padding:38px;color:#a8583a">
+        <svg viewBox="0 0 100 100" width="100%" height="100%">
+          <path d="M50 8 C64 30 80 44 68 66 A22 22 0 1 1 32 66 C20 44 36 30 50 8 Z" fill="none" stroke="currentColor" stroke-width="3"></path>
+          <path d="M31 55 A23 20 0 0 1 69 55" fill="none" stroke="currentColor" stroke-width="2.4" opacity=".55" stroke-linecap="round"></path>
+          <g fill="currentColor"><circle cx="38" cy="60" r="3.4"></circle><rect x="35" y="64" width="6" height="16" rx="3"></rect><circle cx="50" cy="57" r="3.9"></circle><rect x="46.3" y="61" width="7.4" height="19" rx="3.6"></rect><circle cx="62" cy="60" r="3.4"></circle><rect x="59" y="64" width="6" height="16" rx="3"></rect></g>
+        </svg>
+      </div>
+      <div style="font-size:12px;color:#8f8672">Monochrome · Clay</div>
+    </div>
+
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:40px;justify-content:center;align-items:center;background:#fbf5ea;border:1px solid #ece1cd;border-radius:24px;padding:40px 48px">
+    <div style="display:flex;align-items:center;gap:20px">
+      <div style="width:74px;height:74px;flex:none">
+        <svg viewBox="0 0 100 100" width="100%" height="100%">
+          <path d="M50 8 C64 30 80 44 68 66 A22 22 0 1 1 32 66 C20 44 36 30 50 8 Z" fill="url(#fl)"></path>
+          <ellipse cx="50" cy="62" rx="21" ry="25" fill="url(#gl)"></ellipse>
+          <path d="M29 55 A24 21 0 0 1 71 55" fill="none" stroke="#fff6e4" stroke-width="2.6" opacity=".75" stroke-linecap="round"></path>
+          <g fill="#fbf1dc"><circle cx="38" cy="60" r="3.4"></circle><rect x="35" y="64" width="6" height="16" rx="3"></rect><circle cx="50" cy="57" r="3.9"></circle><rect x="46.3" y="61" width="7.4" height="19" rx="3.6"></rect><circle cx="62" cy="60" r="3.4"></circle><rect x="59" y="64" width="6" height="16" rx="3"></rect></g>
+        </svg>
+      </div>
+      <div>
+        <div style="font-family:'Gowun Batang',serif;font-size:26px;color:#2f2b23;line-height:1.1">다니엘과 세친구</div>
+        <div style="font-size:12px;letter-spacing:3px;color:#b0956e;margin-top:6px">함께 걷는 매일의 묵상</div>
+      </div>
+    </div>
+
+    <div style="width:1px;height:60px;background:#e6dcc8"></div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div style="width:64px;height:64px">
+        <svg viewBox="0 0 100 100" width="100%" height="100%">
+          <path d="M50 8 C64 30 80 44 68 66 A22 22 0 1 1 32 66 C20 44 36 30 50 8 Z" fill="url(#fl)"></path>
+          <ellipse cx="50" cy="62" rx="21" ry="25" fill="url(#gl)"></ellipse>
+          <path d="M29 55 A24 21 0 0 1 71 55" fill="none" stroke="#fff6e4" stroke-width="2.6" opacity=".75" stroke-linecap="round"></path>
+          <g fill="#fbf1dc"><circle cx="38" cy="60" r="3.4"></circle><rect x="35" y="64" width="6" height="16" rx="3"></rect><circle cx="50" cy="57" r="3.9"></circle><rect x="46.3" y="61" width="7.4" height="19" rx="3.6"></rect><circle cx="62" cy="60" r="3.4"></circle><rect x="59" y="64" width="6" height="16" rx="3"></rect></g>
+        </svg>
+      </div>
+      <div style="font-family:'Gowun Batang',serif;font-size:16px;color:#2f2b23">다니엘과 세친구</div>
+      <div style="font-size:11px;letter-spacing:3px;color:#b0956e">STACKED</div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:14px;align-items:center">
+    <div style="width:20px;height:20px"><svg viewBox="0 0 100 100" width="100%" height="100%"><path d="M50 8 C64 30 80 44 68 66 A22 22 0 1 1 32 66 C20 44 36 30 50 8 Z" fill="url(#fl)"></path><g fill="#fbf1dc"><rect x="46.3" y="58" width="7.4" height="20" rx="3.6"></rect><rect x="36" y="62" width="6" height="16" rx="3"></rect><rect x="58" y="62" width="6" height="16" rx="3"></rect></g></svg></div>
+    <div style="width:32px;height:32px"><svg viewBox="0 0 100 100" width="100%" height="100%"><path d="M50 8 C64 30 80 44 68 66 A22 22 0 1 1 32 66 C20 44 36 30 50 8 Z" fill="url(#fl)"></path><g fill="#fbf1dc"><circle cx="50" cy="57" r="3.9"></circle><rect x="46.3" y="61" width="7.4" height="18" rx="3.6"></rect><rect x="36" y="64" width="5.6" height="15" rx="2.8"></rect><rect x="58.4" y="64" width="5.6" height="15" rx="2.8"></rect></g></svg></div>
+    <div style="width:48px;height:48px"><svg viewBox="0 0 100 100" width="100%" height="100%"><path d="M50 8 C64 30 80 44 68 66 A22 22 0 1 1 32 66 C20 44 36 30 50 8 Z" fill="url(#fl)"></path><ellipse cx="50" cy="62" rx="21" ry="25" fill="url(#gl)"></ellipse><path d="M29 55 A24 21 0 0 1 71 55" fill="none" stroke="#fff6e4" stroke-width="2.6" opacity=".75" stroke-linecap="round"></path><g fill="#fbf1dc"><circle cx="38" cy="60" r="3.4"></circle><rect x="35" y="64" width="6" height="16" rx="3"></rect><circle cx="50" cy="57" r="3.9"></circle><rect x="46.3" y="61" width="7.4" height="19" rx="3.6"></rect><circle cx="62" cy="60" r="3.4"></circle><rect x="59" y="64" width="6" height="16" rx="3"></rect></g></svg></div>
+    <span style="font-size:12px;color:#8f8672;margin-left:8px">작은 크기에서는 임재의 아치를 생략해 또렷하게 유지</span>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

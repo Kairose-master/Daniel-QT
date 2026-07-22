@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>doc-page:not(:defined){visibility:hidden}</style>
+<script src="./doc-page.js"></script>
+</helmet>
+<doc-page margin="0.85in">
+
+  <div style="font-family:'Gowun Dodum',sans-serif;color:#33302a;line-height:1.65">
+
+    <div style="display:flex;align-items:center;gap:14px;border-bottom:2px solid #a86b4d;padding-bottom:18px;margin-bottom:8px">
+      <div style="width:52px;height:52px;flex:none">
+        <svg viewBox="0 0 100 100" width="100%" height="100%"><defs><linearGradient id="dfl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4c25a"></stop><stop offset=".55" stop-color="#e0964a"></stop><stop offset="1" stop-color="#a8583a"></stop></linearGradient></defs><path d="M50 8 C64 30 80 44 68 66 A22 22 0 1 1 32 66 C20 44 36 30 50 8 Z" fill="url(#dfl)"></path><g fill="#fbf1dc"><circle cx="38" cy="60" r="3.4"></circle><rect x="35" y="64" width="6" height="16" rx="3"></rect><circle cx="50" cy="57" r="3.9"></circle><rect x="46.3" y="61" width="7.4" height="19" rx="3.6"></rect><circle cx="62" cy="60" r="3.4"></circle><rect x="59" y="64" width="6" height="16" rx="3"></rect></g></svg>
+      </div>
+      <div>
+        <div style="font-family:'Gowun Batang',serif;font-size:27px;color:#2f2b23">다니엘과 세친구 — 개발 핸드오프</div>
+        <div style="font-size:13px;color:#8f8672;margin-top:3px">소그룹 QT 나눔 앱 · 화면 기능 명세 + 데이터 구조 · 2026.07</div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:#6a6153">이 문서는 디자인 프로토타입(<code>다니엘과세친구.dc.html</code>)을 실제 서비스로 개발하기 위한 명세입니다. 프로토타입은 화면·인터랙션의 기준이며, 아래 데이터 구조와 기능 명세를 따라 프론트엔드·백엔드를 구현하면 됩니다.</p>
+
+    <h2 style="font-family:'Gowun Batang',serif;font-size:19px;color:#a8583a;margin-top:28px;border-bottom:1px solid #e6dcc8;padding-bottom:6px">1. 권장 기술 스택</h2>
+    <ul style="font-size:14px;color:#453f34;padding-left:20px">
+      <li><b>프론트엔드</b>: Flutter (iOS·Android·웹 동시) 또는 React Native + Expo. 웹 우선이면 React + PWA.</li>
+      <li><b>백엔드/DB</b>: Supabase (PostgreSQL + Auth + Storage + Realtime + Edge Functions). Firebase도 가능.</li>
+      <li><b>인증</b>: Supabase Auth의 <b>Kakao OAuth 프로바이더</b> (별도 서버 없이 카카오 로그인 연동).</li>
+      <li><b>파일(음성)</b>: Supabase Storage 버킷.</li>
+      <li><b>AI 본문 생성</b>: Edge Function에서 Anthropic Claude API 호출.</li>
+      <li><b>푸시 알림</b>: 아침 묵상 알림 — FCM(Firebase Cloud Messaging) 또는 Expo Push.</li>
+    </ul>
+
+    <h2 style="font-family:'Gowun Batang',serif;font-size:19px;color:#a8583a;margin-top:28px;border-bottom:1px solid #e6dcc8;padding-bottom:6px">2. 화면별 기능 명세</h2>
+
+    <div style="break-inside:avoid;margin-top:14px">
+      <h3 style="font-size:15px;color:#2f2b23;margin-bottom:4px">2.1 온보딩 · 로그인</h3>
+      <ul style="font-size:13.5px;color:#453f34;padding-left:20px;margin-top:4px">
+        <li>스플래시(가치 제안) → 로그인 → 초대코드 입력 → 참여 완료의 4단계.</li>
+        <li>로그인: <b>카카오로 시작하기</b>(기본), 이메일로 시작하기(대체).</li>
+        <li>초대코드: 리더가 만든 소그룹의 코드로 참여. 코드 없으면 "새 소그룹 만들기"로 리더가 됨.</li>
+      </ul>
+    </div>
+
+    <div style="break-inside:avoid;margin-top:14px">
+      <h3 style="font-size:15px;color:#2f2b23;margin-bottom:4px">2.2 묵상 홈 (핵심 화면)</h3>
+      <ul style="font-size:13.5px;color:#453f34;padding-left:20px;margin-top:4px">
+        <li><b>오늘의 본문 카드</b>: 날짜·본문 범위·성경 구절·관련 링크·참여율(예 4/6).</li>
+        <li><b>오늘의 타임라인</b>: 누가 몇 시에 QT를 올렸는지 시간순 피드 + 한 줄 미리보기. 탭하면 해당 멤버 카드로 이동.</li>
+        <li><b>함께 묵상한 사람들</b>: 멤버 카드가 가로로 늘어서고(느낀점 한 줄 미리보기), 탭하면 옆으로 펼쳐지며 느낀점·기도제목·댓글·음성·위로 스탬프 표시.</li>
+        <li><b>위로 스탬프</b>: 기도할게요/함께해요/힘내요/은혜예요 — 1인 1개 토글, 카운트 집계.</li>
+        <li><b>댓글</b>: 각 QT에 서로 위로 댓글.</li>
+      </ul>
+    </div>
+
+    <div style="break-inside:avoid;margin-top:14px">
+      <h3 style="font-size:15px;color:#2f2b23;margin-bottom:4px">2.3 QT 작성</h3>
+      <ul style="font-size:13.5px;color:#453f34;padding-left:20px;margin-top:4px">
+        <li>하단 시트로 느낀점 + 기도제목 입력 → 올리면 본인 카드가 채워지고 참여율·타임라인·스트릭 갱신.</li>
+      </ul>
+    </div>
+
+    <div style="break-inside:avoid;margin-top:14px">
+      <h3 style="font-size:15px;color:#2f2b23;margin-bottom:4px">2.4 출석부</h3>
+      <ul style="font-size:13.5px;color:#453f34;padding-left:20px;margin-top:4px">
+        <li>주간 평균 참여율·최장 연속 묵상 통계.</li>
+        <li>멤버별 최근 7일 참여 점 그리드 + 참여 횟수. (qt_entries에서 파생 계산)</li>
+      </ul>
+    </div>
+
+    <div style="break-inside:avoid;margin-top:14px">
+      <h3 style="font-size:15px;color:#2f2b23;margin-bottom:4px">2.5 응원함 (음성)</h3>
+      <ul style="font-size:13.5px;color:#453f34;padding-left:20px;margin-top:4px">
+        <li>마이크로 응원 메시지 녹음 → 특정 멤버에게 전송.</li>
+        <li>받은/보낸 필터, 안 들은 표시, 재생 진행바(파형).</li>
+        <li>녹음 파일은 Storage 업로드 후 voice_messages 행 생성.</li>
+      </ul>
+    </div>
+
+    <div style="break-inside:avoid;margin-top:14px">
+      <h3 style="font-size:15px;color:#2f2b23;margin-bottom:4px">2.6 관리자 대시보드 (리더 전용)</h3>
+      <ul style="font-size:13.5px;color:#453f34;padding-left:20px;margin-top:4px">
+        <li>오늘의 본문 등록: 날짜·본문 범위·관련 링크·묵상 안내 글.</li>
+        <li><b>AI로 본문 작성</b>: 안내 글을 비워두면 AI가 본문 기준 묵상 글 생성.</li>
+        <li>오늘 참여 현황: 멤버별 완료/대기 상태.</li>
+      </ul>
+    </div>
+
+    <h2 style="font-family:'Gowun Batang',serif;font-size:19px;color:#a8583a;margin-top:28px;border-bottom:1px solid #e6dcc8;padding-bottom:6px">3. 데이터 구조 (Supabase / PostgreSQL)</h2>
+
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px">
+      <thead><tr style="background:#f2e8d6;color:#5a5347"><th style="text-align:left;padding:7px 9px;border:1px solid #e0d4bd">테이블</th><th style="text-align:left;padding:7px 9px;border:1px solid #e0d4bd">주요 컬럼</th><th style="text-align:left;padding:7px 9px;border:1px solid #e0d4bd">설명</th></tr></thead>
+      <tbody style="color:#453f34">
+        <tr><td style="padding:7px 9px;border:1px solid #e8ddc8;vertical-align:top"><b>users</b></td><td style="padding:7px 9px;border:1px solid #e8ddc8">id, kakao_id, name, avatar_url, created_at</td><td style="padding:7px 9px;border:1px solid #e8ddc8">Supabase Auth 사용자와 1:1</td></tr>
+        <tr><td style="padding:7px 9px;border:1px solid #e8ddc8;vertical-align:top"><b>groups</b></td><td style="padding:7px 9px;border:1px solid #e8ddc8">id, name, invite_code, leader_id, created_at</td><td style="padding:7px 9px;border:1px solid #e8ddc8">소그룹. invite_code 유니크</td></tr>
+        <tr><td style="padding:7px 9px;border:1px solid #e8ddc8;vertical-align:top"><b>group_members</b></td><td style="padding:7px 9px;border:1px solid #e8ddc8">group_id, user_id, role(leader/member), joined_at</td><td style="padding:7px 9px;border:1px solid #e8ddc8">멤버십(N:N)</td></tr>
+        <tr><td style="padding:7px 9px;border:1px solid #e8ddc8;vertical-align:top"><b>passages</b></td><td style="padding:7px 9px;border:1px solid #e8ddc8">id, group_id, date, ref, verse_text, link_url, devotion, ai_generated(bool)</td><td style="padding:7px 9px;border:1px solid #e8ddc8">관리자가 올리는 일자별 본문</td></tr>
+        <tr><td style="padding:7px 9px;border:1px solid #e8ddc8;vertical-align:top"><b>qt_entries</b></td><td style="padding:7px 9px;border:1px solid #e8ddc8">id, passage_id, user_id, reflection, prayer, created_at</td><td style="padding:7px 9px;border:1px solid #e8ddc8">멤버별 QT 나눔. 출석·스트릭의 원천</td></tr>
+        <tr><td style="padding:7px 9px;border:1px solid #e8ddc8;vertical-align:top"><b>comments</b></td><td style="padding:7px 9px;border:1px solid #e8ddc8">id, qt_entry_id, user_id, text, created_at</td><td style="padding:7px 9px;border:1px solid #e8ddc8">QT에 다는 위로 댓글</td></tr>
+        <tr><td style="padding:7px 9px;border:1px solid #e8ddc8;vertical-align:top"><b>stamps</b></td><td style="padding:7px 9px;border:1px solid #e8ddc8">qt_entry_id, user_id, kind(pray/together/cheer/grace)</td><td style="padding:7px 9px;border:1px solid #e8ddc8">위로 스탬프. (qt_entry_id,user_id) 유니크로 1인 1개</td></tr>
+        <tr><td style="padding:7px 9px;border:1px solid #e8ddc8;vertical-align:top"><b>voice_messages</b></td><td style="padding:7px 9px;border:1px solid #e8ddc8">id, group_id, from_user_id, to_user_id, storage_path, duration, heard(bool), created_at</td><td style="padding:7px 9px;border:1px solid #e8ddc8">응원 음성. 파일은 Storage</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:12.5px;color:#8f8672;margin-top:8px">※ 출석·참여율·연속 묵상(스트릭)은 별도 테이블 없이 <code>qt_entries</code>의 date/user 집계로 계산(뷰 또는 쿼리). RLS(행 수준 보안)로 자신이 속한 group의 데이터만 접근하도록 정책 설정.</p>
+
+    <h2 style="font-family:'Gowun Batang',serif;font-size:19px;color:#a8583a;margin-top:28px;border-bottom:1px solid #e6dcc8;padding-bottom:6px">4. 카카오 로그인 연동</h2>
+    <ol style="font-size:13.5px;color:#453f34;padding-left:20px">
+      <li><a href="https://developers.kakao.com">developers.kakao.com</a>에서 애플리케이션 생성 → <b>JavaScript 키 / REST API 키</b> 발급.</li>
+      <li>카카오 로그인 활성화, <b>Redirect URI</b> 등록(Supabase Auth 콜백 URL: <code>https://&lt;project&gt;.supabase.co/auth/v1/callback</code>).</li>
+      <li>Supabase 대시보드 → Authentication → Providers → <b>Kakao</b> 켜고 REST 키/시크릿 입력.</li>
+      <li>동의 항목: 닉네임·프로필 이미지(profile_nickname, profile_image).</li>
+      <li>앱에서 <code>supabase.auth.signInWithOAuth({ provider: 'kakao' })</code> 호출.</li>
+    </ol>
+    <p style="font-size:12.5px;color:#8f8672">프로토타입 코드의 <code>KAKAO_JS_KEY</code> 자리는 순수 카카오 JS SDK 직접 연동용 참고 지점입니다. Supabase Auth를 쓰면 위 방식이 더 간단합니다.</p>
+
+    <h2 style="font-family:'Gowun Batang',serif;font-size:19px;color:#a8583a;margin-top:28px;border-bottom:1px solid #e6dcc8;padding-bottom:6px">5. AI 본문 · 음성 처리</h2>
+    <ul style="font-size:13.5px;color:#453f34;padding-left:20px">
+      <li><b>AI 본문</b>: 관리자가 devotion을 비운 채 저장하면 Edge Function이 ref(본문 범위)로 Claude에 묵상 안내 글을 요청 → passages.devotion 채우고 ai_generated=true.</li>
+      <li><b>음성 녹음</b>: 마이크 권한 → 로컬 녹음(m4a/webm) → Storage 업로드 → voice_messages 행 생성. 재생 시 heard=true.</li>
+      <li><b>알림</b>: 매일 아침 관리자 본문 등록 시 소그룹 멤버에게 푸시.</li>
+    </ul>
+
+    <h2 style="font-family:'Gowun Batang',serif;font-size:19px;color:#a8583a;margin-top:28px;border-bottom:1px solid #e6dcc8;padding-bottom:6px">6. 음성 응원 메시지 (상세)</h2>
+    <p style="font-size:13.5px;color:#453f34">멤버가 서로에게 격려의 목소리를 직접 녹음해 보내고, 받는 사람이 '응원함'에서 재생하는 기능. 오디오 파일 처리가 핵심입니다.</p>
+
+    <div style="break-inside:avoid;margin-top:10px">
+      <h3 style="font-size:15px;color:#2f2b23;margin-bottom:4px">6.1 녹음 → 전송 흐름</h3>
+      <ol style="font-size:13.5px;color:#453f34;padding-left:20px;margin-top:4px">
+        <li>마이크 권한 요청(iOS <code>NSMicrophoneUsageDescription</code>, Android <code>RECORD_AUDIO</code>).</li>
+        <li>녹음 시작/정지 (최대 길이 권장 60초). 녹음 중 경과 시간·파형 표시.</li>
+        <li>받을 멤버 선택(같은 소그룹 내) → 로컬 파일 생성.</li>
+        <li>Supabase Storage 버킷 <code>voice/{group_id}/{uuid}.m4a</code> 업로드.</li>
+        <li><code>voice_messages</code> 행 생성(from/to/storage_path/duration, heard=false).</li>
+        <li>받는 사람에게 푸시 알림 "○○님이 응원 음성을 보냈어요".</li>
+      </ol>
+    </div>
+
+    <div style="break-inside:avoid;margin-top:10px">
+      <h3 style="font-size:15px;color:#2f2b23;margin-bottom:4px">6.2 재생 (응원함)</h3>
+      <ul style="font-size:13.5px;color:#453f34;padding-left:20px;margin-top:4px">
+        <li>Storage 서명 URL(만료 시간 지정)로 스트리밍 재생.</li>
+        <li>재생 진행바 — 파형은 녹음 시 진폭 샘플을 저장하거나 데코용 막대로 표현.</li>
+        <li>재생 완료 시 <code>heard=true</code> 업데이트.</li>
+        <li>받은/보낸 필터, 안 들은 배지, 본인이 보낸 메시지 삭제.</li>
+      </ul>
+    </div>
+
+    <div style="break-inside:avoid;margin-top:10px">
+      <h3 style="font-size:15px;color:#2f2b23;margin-bottom:4px">6.3 포맷 · 라이브러리</h3>
+      <table style="width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px">
+        <thead><tr style="background:#f2e8d6;color:#5a5347"><th style="text-align:left;padding:6px 9px;border:1px solid #e0d4bd">플랫폼</th><th style="text-align:left;padding:6px 9px;border:1px solid #e0d4bd">녹음/재생</th><th style="text-align:left;padding:6px 9px;border:1px solid #e0d4bd">포맷</th></tr></thead>
+        <tbody style="color:#453f34">
+          <tr><td style="padding:6px 9px;border:1px solid #e8ddc8">Flutter</td><td style="padding:6px 9px;border:1px solid #e8ddc8"><code>record</code> + <code>just_audio</code></td><td style="padding:6px 9px;border:1px solid #e8ddc8">AAC(m4a)</td></tr>
+          <tr><td style="padding:6px 9px;border:1px solid #e8ddc8">React Native</td><td style="padding:6px 9px;border:1px solid #e8ddc8"><code>expo-av</code> (Audio.Recording / Sound)</td><td style="padding:6px 9px;border:1px solid #e8ddc8">AAC(m4a)</td></tr>
+          <tr><td style="padding:6px 9px;border:1px solid #e8ddc8">웹(PWA)</td><td style="padding:6px 9px;border:1px solid #e8ddc8">MediaRecorder API / <code>&lt;audio&gt;</code></td><td style="padding:6px 9px;border:1px solid #e8ddc8">webm/opus</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="break-inside:avoid;margin-top:10px">
+      <h3 style="font-size:15px;color:#2f2b23;margin-bottom:4px">6.4 저장 · 보안</h3>
+      <ul style="font-size:13.5px;color:#453f34;padding-left:20px;margin-top:4px">
+        <li>Storage 버킷은 비공개. 정책으로 같은 <code>group_id</code> 멤버만 read/insert.</li>
+        <li>다운로드는 항상 만료되는 서명 URL로만. 원본 경로 직접 노출 금지.</li>
+        <li>용량 관리: 최대 길이 제한 + 오래된 메시지 자동 정리(선택).</li>
+      </ul>
+    </div>
+
+    <h2 style="font-family:'Gowun Batang',serif;font-size:19px;color:#a8583a;margin-top:28px;border-bottom:1px solid #e6dcc8;padding-bottom:6px">7. 개발 순서 제안</h2>
+    <ol style="font-size:13.5px;color:#453f34;padding-left:20px">
+      <li>Supabase 프로젝트 + 위 스키마 + RLS 정책.</li>
+      <li>카카오 로그인 → 소그룹 생성/초대코드 참여.</li>
+      <li>관리자 본문 등록 → 멤버 QT 작성 → 묵상 홈(타임라인·펼침 카드).</li>
+      <li>댓글·위로 스탬프 → 출석 집계.</li>
+      <li>응원함 음성 녹음/재생 → 푸시 알림 → AI 본문.</li>
+      <li>스토어 배포(Apple Developer / Google Play Console).</li>
+    </ol>
+
+    <p style="font-size:12px;color:#a89c85;margin-top:24px;border-top:1px solid #e6dcc8;padding-top:12px">동봉 파일: 다니엘과세친구.dc.html(앱 프로토타입) · 로고.dc.html(로고 시스템) · 로고마크.dc.html(엠블럼 컴포넌트) · HANDOFF.md(본 문서 텍스트본) · CLAUDE.md(Claude Code 지침)</p>
+
+  </div>
+</doc-page>
+</x-dc>
+</body>
+</html>

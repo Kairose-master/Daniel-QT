@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#e7e0d4}
+  a{color:#a86b4d;text-decoration:none}
+  a:hover{color:#8f5638}
+  .noscroll::-webkit-scrollbar{display:none}
+  .noscroll{-ms-overflow-style:none;scrollbar-width:none}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.14)}}
+</style>
+</helmet>
+<div style="min-height:100vh;background:radial-gradient(120% 90% at 50% 0%,#efe9dd 0%,#e2dacb 100%);display:flex;justify-content:center;align-items:flex-start;padding:34px 16px;font-family:'Gowun Dodum',sans-serif">
+  <div style="width:392px;height:822px;background:#f6f1e8;border-radius:44px;box-shadow:0 30px 70px -20px rgba(60,48,30,.45),0 0 0 10px #2c261d,0 0 0 11px #443a2c;overflow:hidden;display:flex;flex-direction:column;position:relative">
+
+    <div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-size:13px;color:#4a4236;font-weight:700;flex:none">
+      <span>9:41</span>
+      <span style="letter-spacing:2px">•••  ▾  ▮</span>
+    </div>
+
+    <div style="padding:10px 22px 14px;flex:none;border-bottom:1px solid #eae1d1;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:11px">
+        <div style="width:34px;height:34px;flex:none"><dc-import name="로고마크" hint-size="34px,34px" style="width:34px;height:34px"></dc-import></div>
+        <div>
+          <div style="font-size:11px;letter-spacing:3px;color:#b6a88f;text-transform:uppercase">{{ groupName }}</div>
+          <div style="font-family:'Gowun Batang',serif;font-size:20px;color:#332f28;margin-top:2px">{{ headerTitle }}</div>
+        </div>
+      </div>
+      <div style="width:38px;height:38px;border-radius:50%;background:#a98a63;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px">나</div>
+    </div>
+
+    <div class="noscroll" style="flex:1;overflow-y:auto;background:#f6f1e8">
+
+      <sc-if value="{{ isThread }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:18px 20px 26px;animation:fadeUp .4s ease both">
+        <div style="background:linear-gradient(160deg,#fffdf8,#faf4e9);border:1px solid #eadfca;border-radius:20px;padding:20px;box-shadow:0 8px 22px -14px rgba(90,70,40,.4)">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:11px;letter-spacing:2px;color:#c0a878">오늘의 본문 · {{ todayDate }}</span>
+            <span style="font-size:11px;color:#96b07a">{{ participationLabel }}</span>
+          </div>
+          <div style="font-family:'Gowun Batang',serif;font-size:23px;color:#2f2b23;margin:10px 0 8px">{{ passageRef }}</div>
+          <div style="font-family:'Gowun Batang',serif;font-size:15px;line-height:1.85;color:#6a6153">{{ passageVerse }}</div>
+          <a href="{{ passageLink }}" target="_blank" style="display:inline-flex;align-items:center;gap:7px;margin-top:14px;padding:8px 14px;background:#f3ece0;border:1px solid #e6dbc7;border-radius:999px;font-size:12px;color:#8a6a4c">
+            <span style="width:6px;height:6px;border-radius:50%;background:#a86b4d;display:inline-block"></span>{{ linkLabel }}
+          </a>
+        </div>
+
+        <sc-if value="{{ showWriteCta }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ openWrite }}" style="width:100%;margin-top:16px;padding:15px;border:1.5px dashed #d3b98f;background:#fbf4e8;border-radius:16px;color:#9a7647;font-size:14px;font-family:'Gowun Dodum',sans-serif;cursor:pointer">＋  오늘의 QT 쓰기</button>
+        </sc-if>
+
+        <div style="margin:24px 2px 12px">
+          <span style="font-family:'Gowun Batang',serif;font-size:16px;color:#453f34">오늘의 타임라인</span>
+        </div>
+        <sc-for list="{{ timeline }}" as="t" hint-placeholder-count="4">
+          <div onClick="{{ t.onOpen }}" style="display:flex;align-items:center;gap:11px;padding:11px 13px;background:#fffdf8;border:1px solid #efe7d8;border-radius:14px;margin-bottom:8px;cursor:pointer">
+            <div style="width:34px;height:34px;border-radius:50%;background:{{ t.bg }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;flex:none">{{ t.initial }}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;color:#7a7263"><span style="color:#332f28">{{ t.name }}</span>님이 묵상을 나눴어요</div>
+              <div style="font-family:'Gowun Batang',serif;font-size:12px;color:#9a8f7a;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">"{{ t.preview }}"</div>
+            </div>
+            <span style="font-size:11px;color:#c0b49a;flex:none">{{ t.postedAt }}</span>
+          </div>
+        </sc-for>
+
+        <div style="margin:24px 2px 12px;display:flex;align-items:center;justify-content:space-between">
+          <span style="font-family:'Gowun Batang',serif;font-size:16px;color:#453f34">함께 묵상한 사람들</span>
+          <span style="font-size:11px;color:#b6a88f">탭하면 옆으로 펼쳐져요 →</span>
+        </div>
+
+        <div class="noscroll" ref="{{ stripRef }}" style="display:flex;gap:10px;overflow-x:auto;padding:4px 2px 10px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scroll-padding:0 2px;scroll-behavior:smooth">
+          <sc-for list="{{ members }}" as="m" hint-placeholder-count="6">
+            <div onClick="{{ m.onToggle }}" data-mid="{{ m.id }}" style="flex:none;scroll-snap-align:start;width:{{ m.colW }};height:{{ m.colH }};background:{{ m.cardBg }};border:1px solid {{ m.cardBorder }};border-radius:20px;overflow:hidden;cursor:pointer;transition:width .38s cubic-bezier(.2,.8,.2,1);box-shadow:0 6px 18px -14px rgba(80,60,30,.5)">
+
+              <sc-if value="{{ m.collapsed }}" hint-placeholder-val="{{ true }}">
+              <div style="height:100%;display:flex;flex-direction:column;align-items:center;padding:16px 9px 12px;text-align:center">
+                <div style="width:42px;height:42px;border-radius:50%;background:{{ m.bg }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;opacity:{{ m.avatarOpacity }}">{{ m.initial }}</div>
+                <div style="font-size:13px;color:#4d473c;margin-top:8px">{{ m.name }}</div>
+                <sc-if value="{{ m.hasPreview }}" hint-placeholder-val="{{ true }}">
+                <div style="flex:1;font-family:'Gowun Batang',serif;font-size:11px;line-height:1.6;color:#9a8f7a;margin-top:9px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical">{{ m.preview }}</div>
+                </sc-if>
+                <sc-if value="{{ m.notDone }}" hint-placeholder-val="{{ false }}">
+                <div style="flex:1;display:flex;align-items:center;font-size:11px;color:#c9bda4">아직 안 올림</div>
+                </sc-if>
+                <div style="width:7px;height:7px;border-radius:50%;background:{{ m.dotColor }};margin-top:8px"></div>
+              </div>
+              </sc-if>
+
+              <sc-if value="{{ m.expanded }}" hint-placeholder-val="{{ false }}">
+              <div class="noscroll" style="height:100%;overflow-y:auto;padding:16px 16px 18px;animation:fadeUp .35s ease both">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="width:40px;height:40px;border-radius:50%;background:{{ m.bg }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px">{{ m.initial }}</div>
+                  <div style="flex:1">
+                    <div style="display:flex;align-items:center;gap:6px"><span style="font-size:15px;color:#332f28">{{ m.name }}</span><span style="font-size:9px;color:{{ m.badgeColor }};border:1px solid {{ m.badgeColor }};border-radius:6px;padding:1px 5px">{{ m.badge }}</span></div>
+                    <div style="font-size:11px;color:#b1a488;margin-top:2px">{{ m.streakLabel }}</div>
+                  </div>
+                  <span onClick="{{ m.onToggle }}" style="font-size:18px;color:#c9bda4;cursor:pointer;padding:0 4px">×</span>
+                </div>
+
+                <sc-if value="{{ m.done }}" hint-placeholder-val="{{ true }}">
+                <div>
+                  <div style="margin-top:16px;font-size:11px;letter-spacing:2px;color:#c0a878">느낀점</div>
+                  <div style="font-family:'Gowun Batang',serif;font-size:14px;line-height:1.85;color:#453f34;margin-top:6px">{{ m.reflection }}</div>
+                  <div style="margin-top:16px;font-size:11px;letter-spacing:2px;color:#c0a878">기도제목</div>
+                  <div style="background:#f4efe4;border-radius:12px;padding:11px 13px;font-size:13px;line-height:1.7;color:#6a6153;margin-top:6px">{{ m.prayer }}</div>
+
+                  <sc-if value="{{ m.hasVoice }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;align-items:center;gap:10px;margin-top:14px;background:#efe7d8;border-radius:12px;padding:10px 12px">
+                    <span style="width:30px;height:30px;border-radius:50%;background:#a86b4d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px">▶</span>
+                    <div style="flex:1"><div style="font-size:12px;color:#5a5347">{{ m.voiceFrom }}님의 응원 음성</div><div style="font-size:11px;color:#b1a488">{{ m.voiceLen }}</div></div>
+                  </div>
+                  </sc-if>
+
+                  <div style="margin-top:16px">
+                    <sc-if value="{{ m.hasStamps }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:11px">
+                      <sc-for list="{{ m.stampChips }}" as="sc" hint-placeholder-count="2">
+                        <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#8a6a4c;background:#f4ece0;border:1px solid #ecdfc9;border-radius:999px;padding:4px 10px">{{ sc.label }}<span style="color:#b39069">{{ sc.count }}</span></span>
+                      </sc-for>
+                    </div>
+                    </sc-if>
+                    <div style="font-size:11px;letter-spacing:1px;color:#c0a878;margin-bottom:8px">잔잔한 위로 건네기</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px">
+                      <sc-for list="{{ m.stampButtons }}" as="sb" hint-placeholder-count="4">
+                        <button onClick="{{ sb.onPick }}" style="border:1px solid {{ sb.border }};background:{{ sb.bg }};color:{{ sb.color }};border-radius:999px;padding:7px 12px;font-size:12px;font-family:'Gowun Dodum',sans-serif;cursor:pointer;transition:all .2s">{{ sb.label }}</button>
+                      </sc-for>
+                    </div>
+                  </div>
+
+                  <div style="margin-top:16px;border-top:1px solid #eee3d1;padding-top:12px">
+                    <sc-for list="{{ m.comments }}" as="c" hint-placeholder-count="1">
+                      <div style="display:flex;gap:8px;margin-bottom:10px">
+                        <div style="width:24px;height:24px;border-radius:50%;background:{{ c.bg }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;flex:none">{{ c.initial }}</div>
+                        <div style="background:#f4efe4;border-radius:0 12px 12px 12px;padding:8px 11px"><span style="font-size:11px;color:#a2957c;margin-right:6px">{{ c.name }}</span><span style="font-size:13px;color:#4d473c;line-height:1.6">{{ c.text }}</span></div>
+                      </div>
+                    </sc-for>
+                    <div style="display:flex;gap:6px;margin-top:4px">
+                      <input value="{{ commentDraft }}" onInput="{{ onCommentInput }}" placeholder="따뜻한 댓글 남기기" style="flex:1;border:1px solid #e6dbc7;background:#fffdf8;border-radius:999px;padding:8px 12px;font-size:12px;font-family:'Gowun Dodum',sans-serif;outline:none;color:#4d473c">
+                      <button onClick="{{ m.onSendComment }}" style="border:none;background:#a86b4d;color:#fff;border-radius:999px;padding:0 14px;font-size:12px;cursor:pointer;font-family:'Gowun Dodum',sans-serif">등록</button>
+                    </div>
+                  </div>
+                </div>
+                </sc-if>
+
+                <sc-if value="{{ m.notDone }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:24px;text-align:center;padding:20px 8px">
+                  <div style="font-size:13px;color:#b1a488;line-height:1.7">아직 오늘의 묵상을<br>나누지 않았어요</div>
+                  <div style="margin-top:12px;font-size:12px;color:#c9bda4">기다리며 기도해 주세요 🙏</div>
+                </div>
+                </sc-if>
+              </div>
+              </sc-if>
+
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ isAttend }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:20px;animation:fadeUp .4s ease both">
+        <div style="font-family:'Gowun Batang',serif;font-size:19px;color:#332f28">이번 주 출석</div>
+        <div style="font-size:12px;color:#b1a488;margin-top:4px">{{ weekRange }} · 소그룹 전체 참여율 {{ groupRate }}</div>
+
+        <div style="display:flex;gap:10px;margin:18px 0 22px">
+          <div style="flex:1;background:#fffdf8;border:1px solid #eadfca;border-radius:16px;padding:14px">
+            <div style="font-family:'Gowun Batang',serif;font-size:26px;color:#a86b4d">{{ groupRate }}</div>
+            <div style="font-size:11px;color:#b1a488;margin-top:2px">주간 평균 참여율</div>
+          </div>
+          <div style="flex:1;background:#fffdf8;border:1px solid #eadfca;border-radius:16px;padding:14px">
+            <div style="font-family:'Gowun Batang',serif;font-size:26px;color:#7c8a6d">{{ topStreak }}일</div>
+            <div style="font-size:11px;color:#b1a488;margin-top:2px">최장 연속 묵상</div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:9px;padding:0 2px 8px"><sc-for list="{{ weekDays }}" as="d" hint-placeholder-count="7"><span style="width:22px;text-align:center;font-size:10px;color:#c0b49a">{{ d }}</span></sc-for></div>
+        <sc-for list="{{ attendRows }}" as="r" hint-placeholder-count="6">
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid #efe7d8">
+            <div style="width:30px;height:30px;border-radius:50%;background:{{ r.bg }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;flex:none">{{ r.initial }}</div>
+            <span style="width:44px;font-size:13px;color:#4d473c">{{ r.name }}</span>
+            <div style="flex:1;display:flex;justify-content:flex-end;gap:9px">
+              <sc-for list="{{ r.days }}" as="day" hint-placeholder-count="7"><span style="width:22px;height:22px;border-radius:7px;background:{{ day.bg }};display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff">{{ day.mark }}</span></sc-for>
+            </div>
+            <span style="width:34px;text-align:right;font-size:12px;color:#a2957c">{{ r.count }}</span>
+          </div>
+        </sc-for>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ isCheer }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:20px;animation:fadeUp .4s ease both">
+        <div style="font-family:'Gowun Batang',serif;font-size:19px;color:#332f28">응원함</div>
+        <div style="font-size:12px;color:#b1a488;margin-top:4px">서로를 위해 직접 녹음한 목소리를 모아요</div>
+
+        <div style="margin:20px 0;background:linear-gradient(160deg,#fbf4e8,#f3e8d5);border:1px solid #eadfca;border-radius:20px;padding:22px;text-align:center">
+          <div onClick="{{ toggleRecord }}" style="width:74px;height:74px;margin:0 auto;border-radius:50%;background:{{ recBg }};box-shadow:0 10px 24px -10px rgba(168,107,77,.6);display:flex;align-items:center;justify-content:center;cursor:pointer;animation:{{ recAnim }}">
+            <span style="width:26px;height:26px;border-radius:{{ recIconRadius }};background:#fff"></span>
+          </div>
+          <div style="font-size:13px;color:#8a6a4c;margin-top:14px">{{ recLabel }}</div>
+        </div>
+
+        <sc-for list="{{ cheerCards }}" as="v" hint-placeholder-count="3">
+          <div style="background:#fffdf8;border:1px solid #eadfca;border-radius:18px;padding:14px 16px;margin-bottom:12px;box-shadow:0 6px 16px -14px rgba(80,60,30,.5)">
+            <div style="display:flex;align-items:center;gap:9px">
+              <div style="width:32px;height:32px;border-radius:50%;background:{{ v.bg }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px">{{ v.initial }}</div>
+              <div style="flex:1"><span style="font-size:13px;color:#4d473c">{{ v.from }}</span><span style="font-size:12px;color:#b1a488"> → {{ v.to }}</span></div>
+              <span style="font-size:11px;color:#c0b49a">{{ v.when }}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:11px;margin-top:12px">
+              <span onClick="{{ v.onPlay }}" style="width:34px;height:34px;border-radius:50%;background:#a86b4d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;flex:none">{{ v.icon }}</span>
+              <div style="flex:1;display:flex;align-items:center;gap:3px;height:30px">
+                <sc-for list="{{ v.bars }}" as="b" hint-placeholder-count="22"><span style="flex:1;height:{{ b.h }};background:{{ b.c }};border-radius:2px"></span></sc-for>
+              </div>
+              <span style="font-size:11px;color:#a2957c">{{ v.len }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:20px;animation:fadeUp .4s ease both">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="font-family:'Gowun Batang',serif;font-size:19px;color:#332f28">관리자 대시보드</div>
+          <span style="font-size:9px;color:#a86b4d;border:1px solid #a86b4d;border-radius:6px;padding:1px 6px">하은 · 리더</span>
+        </div>
+
+        <div style="background:#fffdf8;border:1px solid #eadfca;border-radius:18px;padding:18px;margin-top:16px">
+          <div style="font-size:13px;color:#453f34;margin-bottom:12px">오늘의 본문 올리기</div>
+          <div style="display:flex;gap:8px;margin-bottom:9px">
+            <input value="{{ admin.date }}" onInput="{{ onAdminDate }}" style="flex:1;border:1px solid #e6dbc7;background:#faf6ee;border-radius:10px;padding:9px 11px;font-size:12px;color:#4d473c;font-family:'Gowun Dodum',sans-serif;outline:none">
+            <input value="{{ admin.ref }}" onInput="{{ onAdminRef }}" style="flex:1;border:1px solid #e6dbc7;background:#faf6ee;border-radius:10px;padding:9px 11px;font-size:12px;color:#4d473c;font-family:'Gowun Dodum',sans-serif;outline:none">
+          </div>
+          <input value="{{ admin.link }}" onInput="{{ onAdminLink }}" placeholder="관련 링크 (설교 영상 등)" style="width:100%;border:1px solid #e6dbc7;background:#faf6ee;border-radius:10px;padding:9px 11px;font-size:12px;color:#4d473c;font-family:'Gowun Dodum',sans-serif;outline:none;margin-bottom:9px">
+          <textarea value="{{ admin.devotion }}" onInput="{{ onAdminDevotion }}" placeholder="묵상 안내 글을 적어주세요" style="width:100%;height:74px;border:1px solid #e6dbc7;background:#faf6ee;border-radius:10px;padding:10px 11px;font-size:12px;color:#4d473c;font-family:'Gowun Batang',serif;line-height:1.7;outline:none;resize:none"></textarea>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button onClick="{{ onAiWrite }}" style="flex:none;padding:10px 13px;border:1px solid #d3b98f;background:#fbf4e8;color:#9a7647;border-radius:10px;font-size:12px;cursor:pointer;font-family:'Gowun Dodum',sans-serif">✦ {{ aiBtnLabel }}</button>
+            <button onClick="{{ onPublish }}" style="flex:1;padding:10px;border:none;background:#a86b4d;color:#fff;border-radius:10px;font-size:13px;cursor:pointer;font-family:'Gowun Dodum',sans-serif">{{ publishLabel }}</button>
+          </div>
+        </div>
+
+        <div style="font-size:13px;color:#453f34;margin:22px 2px 10px">오늘 참여 현황 · {{ participationLabel }}</div>
+        <sc-for list="{{ members }}" as="m" hint-placeholder-count="6">
+          <div style="display:flex;align-items:center;gap:10px;background:#fffdf8;border:1px solid #efe7d8;border-radius:14px;padding:11px 13px;margin-bottom:8px">
+            <div style="width:30px;height:30px;border-radius:50%;background:{{ m.bg }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px">{{ m.initial }}</div>
+            <span style="flex:1;font-size:13px;color:#4d473c">{{ m.name }}</span>
+            <span style="font-size:12px;color:{{ m.statusText }}">{{ m.statusLabel }}</span>
+          </div>
+        </sc-for>
+      </div>
+      </sc-if>
+
+    </div>
+
+    <div style="flex:none;display:flex;border-top:1px solid #eae1d1;background:#f9f5ee;padding:8px 6px 12px">
+      <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="4">
+        <button onClick="{{ n.onClick }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px 0;color:{{ n.color }};font-family:'Gowun Dodum',sans-serif">
+          <span style="width:9px;height:9px;border-radius:50%;background:{{ n.color }};opacity:{{ n.dot }}"></span>
+          <span style="font-size:11px">{{ n.label }}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{ writeOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;background:rgba(44,38,29,.4);display:flex;align-items:flex-end;animation:fadeUp .25s ease both">
+      <div style="width:100%;background:#f7f2ea;border-radius:26px 26px 0 0;padding:22px 22px 26px;box-shadow:0 -12px 40px -10px rgba(0,0,0,.35)">
+        <div style="width:40px;height:4px;border-radius:2px;background:#ddd2bd;margin:0 auto 16px"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-family:'Gowun Batang',serif;font-size:18px;color:#332f28">오늘의 QT 나누기</span>
+          <span onClick="{{ closeWrite }}" style="font-size:20px;color:#c9bda4;cursor:pointer">×</span>
+        </div>
+        <div style="font-size:12px;color:#b1a488;margin:4px 0 16px">{{ passageRef }}</div>
+        <div style="font-size:11px;letter-spacing:2px;color:#c0a878;margin-bottom:6px">느낀점</div>
+        <textarea value="{{ draftReflection }}" onInput="{{ onReflectionInput }}" placeholder="말씀을 통해 마음에 다가온 것을 나눠보세요" style="width:100%;height:96px;border:1px solid #e6dbc7;background:#fffdf8;border-radius:12px;padding:12px;font-size:14px;color:#453f34;font-family:'Gowun Batang',serif;line-height:1.8;outline:none;resize:none"></textarea>
+        <div style="font-size:11px;letter-spacing:2px;color:#c0a878;margin:16px 0 6px">기도제목</div>
+        <textarea value="{{ draftPrayer }}" onInput="{{ onPrayerInput }}" placeholder="함께 기도하고 싶은 제목을 적어주세요" style="width:100%;height:64px;border:1px solid #e6dbc7;background:#fffdf8;border-radius:12px;padding:12px;font-size:14px;color:#453f34;font-family:'Gowun Batang',serif;line-height:1.8;outline:none;resize:none"></textarea>
+        <button onClick="{{ saveWrite }}" style="width:100%;margin-top:18px;padding:14px;border:none;background:#a86b4d;color:#fff;border-radius:14px;font-size:15px;cursor:pointer;font-family:'Gowun Dodum',sans-serif">나눔 올리기</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ showOnboard }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute;inset:0;z-index:5;background:radial-gradient(120% 80% at 50% 15%,#f5ecdb 0%,#e7d9c0 100%);display:flex;flex-direction:column;padding:44px 30px 40px;animation:fadeUp .35s ease both">
+
+      <sc-if value="{{ isOnb0 }}" hint-placeholder-val="{{ true }}">
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
+        <div style="width:78px;height:78px"><dc-import name="로고마크" hint-size="78px,78px" style="width:78px;height:78px"></dc-import></div>
+        <div style="font-family:'Gowun Batang',serif;font-size:26px;color:#2f2b23;margin-top:22px">다니엘과 세친구</div>
+        <div style="font-size:14px;color:#8a7f6a;line-height:1.8;margin-top:12px">같은 말씀, 함께 걷는 하루<br>소그룹과 나누는 잔잔한 묵상</div>
+      </div>
+      <button onClick="{{ onboardNext }}" style="width:100%;padding:15px;border:none;background:#a86b4d;color:#fff;border-radius:15px;font-size:15px;cursor:pointer;font-family:'Gowun Dodum',sans-serif">시작하기</button>
+      </sc-if>
+
+      <sc-if value="{{ isOnb1 }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
+        <div style="width:60px;height:60px"><dc-import name="로고마크" hint-size="60px,60px" style="width:60px;height:60px"></dc-import></div>
+        <div style="font-family:'Gowun Batang',serif;font-size:20px;color:#2f2b23;margin-top:18px">간편하게 시작하기</div>
+        <div style="font-size:13px;color:#9a8f7a;margin-top:8px;line-height:1.7">3초면 충분해요.<br>소그룹 지체들과 바로 연결됩니다</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button onClick="{{ onKakaoLogin }}" style="width:100%;padding:15px;border:none;background:#FEE500;color:#191600;border-radius:14px;font-size:15px;cursor:pointer;font-family:'Gowun Dodum',sans-serif;display:flex;align-items:center;justify-content:center;gap:9px">
+          <span style="width:20px;height:17px;background:#391b1b;border-radius:50%;display:inline-block"></span>{{ kakaoLabel }}
+        </button>
+        <button onClick="{{ onboardNext }}" style="width:100%;padding:15px;border:1px solid #ddccb0;background:transparent;color:#6a6153;border-radius:14px;font-size:15px;cursor:pointer;font-family:'Gowun Dodum',sans-serif">이메일로 시작하기</button>
+        <div style="text-align:center;font-size:11px;color:#b3a68d;margin-top:6px;line-height:1.6">시작하면 이용약관과 개인정보처리방침에<br>동의하는 것으로 간주됩니다</div>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ isOnb2 }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+        <div style="font-family:'Gowun Batang',serif;font-size:22px;color:#2f2b23">소그룹 초대코드를<br>입력해주세요</div>
+        <div style="font-size:13px;color:#9a8f7a;margin-top:10px;line-height:1.7">리더에게 받은 코드로 소그룹에 참여해요</div>
+        <input value="{{ inviteCode }}" onInput="{{ onInviteInput }}" placeholder="예: DANIEL-2026" style="width:100%;margin-top:26px;border:1px solid #ddccb0;background:#fffdf8;border-radius:14px;padding:15px 16px;font-size:16px;letter-spacing:2px;text-align:center;color:#4d473c;font-family:'Gowun Dodum',sans-serif;outline:none">
+        <div style="text-align:center;margin-top:18px;font-size:12px;color:#a89c85">코드가 없으신가요? <a href="#" style="color:#a86b4d">새 소그룹 만들기</a></div>
+      </div>
+      <button onClick="{{ onboardNext }}" style="width:100%;padding:15px;border:none;background:#a86b4d;color:#fff;border-radius:15px;font-size:15px;cursor:pointer;font-family:'Gowun Dodum',sans-serif">참여하기</button>
+      </sc-if>
+
+      <sc-if value="{{ isOnb3 }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
+        <div style="width:58px;height:58px;border-radius:50%;background:#7c8a6d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px">✓</div>
+        <div style="font-family:'Gowun Batang',serif;font-size:22px;color:#2f2b23;margin-top:20px">새벽이슬 소그룹에<br>참여했어요</div>
+        <div style="font-size:13px;color:#9a8f7a;margin-top:12px">6명의 지체와 함께 묵상을 나눠요</div>
+        <div style="display:flex;margin-top:22px;padding-left:8px">
+          <span style="width:36px;height:36px;border-radius:50%;background:#a86b4d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid #f1e6d2">하</span>
+          <span style="width:36px;height:36px;border-radius:50%;background:#7c8a6d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid #f1e6d2;margin-left:-8px">지</span>
+          <span style="width:36px;height:36px;border-radius:50%;background:#8a7f9a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid #f1e6d2;margin-left:-8px">서</span>
+          <span style="width:36px;height:36px;border-radius:50%;background:#a98a63;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid #f1e6d2;margin-left:-8px">도</span>
+          <span style="width:36px;height:36px;border-radius:50%;background:#7d8a94;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid #f1e6d2;margin-left:-8px">+2</span>
+        </div>
+      </div>
+      <button onClick="{{ finishOnboard }}" style="width:100%;padding:15px;border:none;background:#a86b4d;color:#fff;border-radius:15px;font-size:15px;cursor:pointer;font-family:'Gowun Dodum',sans-serif">묵상 시작하기</button>
+      </sc-if>
+
+    </div>
+    </sc-if>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:424,&quot;height&quot;:890}}">
+class Component extends DCLogic {
+  state = {
+    tab: 'thread',
+    expandedId: null,
+    writeOpen: false,
+    draftReflection: '',
+    draftPrayer: '',
+    commentDraft: '',
+    recording: false,
+    admin: { date: '2026.07.22 (화)', ref: '다니엘 3:16–18', link: 'https://youtube.com', devotion: '' },
+    members: [
+      { id:1, name:'하은', initial:'하', bg:'#a86b4d', admin:true, done:true, streak:21, hearts:5, postMin:340, postedAt:'오전 5:40', preview:'두려움이 부끄러워졌어요',
+        reflection:'풀무불 앞에서도 "그렇게 하지 아니하실지라도"를 고백한 세 친구의 담대함이 오늘 내 두려움을 부끄럽게 했다.',
+        prayer:'말씀 앞에 타협하지 않는 용기를 주소서.', voice:null,
+        comments:[{name:'지민',initial:'지',bg:'#7c8a6d',text:'언니 고백에 저도 힘이 나요.'}] },
+      { id:3, name:'서준', initial:'서', bg:'#8a7f9a', admin:false, done:true, streak:14, hearts:4, postMin:375, postedAt:'오전 6:15', preview:'네 번째 사람으로 함께',
+        reflection:'불 속에 네 번째 사람으로 함께 계신 주님을 묵상한다.',
+        prayer:'편찮으신 어머니의 회복을 위해.', voice:null, comments:[] },
+      { id:2, name:'지민', initial:'지', bg:'#7c8a6d', admin:false, done:true, streak:8, hearts:3, postMin:422, postedAt:'오전 7:02', preview:'하나님이 더 크시다',
+        reflection:'느부갓네살의 위협보다 하나님이 더 크시다는 걸 다시 붙든다.',
+        prayer:'직장에서 믿음으로 서게 하소서.', voice:{from:'하은',len:'0:24'},
+        comments:[{name:'예린',initial:'예',bg:'#9a8f7a',text:'지민아 이번 주도 응원해!'}] },
+      { id:5, name:'도현', initial:'도', bg:'#a98a63', admin:false, done:true, streak:3, hearts:2, postMin:500, postedAt:'오전 8:20', preview:'결단이 큰 도전이 됐다',
+        reflection:'타협이 익숙한 나에게 세 친구의 결단이 큰 도전이 된다.',
+        prayer:'정직함으로 일하게 하소서.', voice:null, comments:[] },
+      { id:4, name:'예린', initial:'예', bg:'#9a8f7a', admin:false, done:false, streak:0, hearts:0, postMin:9999, postedAt:'', preview:'',
+        reflection:'', prayer:'', voice:null, comments:[] },
+      { id:6, name:'민아', initial:'민', bg:'#7d8a94', admin:false, done:false, streak:0, hearts:0, postMin:9999, postedAt:'', preview:'',
+        reflection:'', prayer:'', voice:null, comments:[] },
+    ],
+    reacted: {},
+    plays: {},
+    aiUsed: false,
+    published: false,
+    myStamp: {},
+    stamps: { 1:{pray:3,together:2,grace:1}, 2:{cheer:2,pray:1}, 3:{together:2,pray:1}, 5:{cheer:1} },
+    onboarded: false,
+    onboardStep: 0,
+    inviteCode: '',
+    kakaoLoading: false,
+    loggedIn: false,
+    cheerFilter: 'all',
+    progress: {},
+    cheerData: [
+      { id:'a', name:'하은', initial:'하', bg:'#a86b4d', dir:'recv', note:'예린아, 새 마음으로 다시 시작해요', when:'2시간 전', len:'0:24', heard:false },
+      { id:'b', name:'서준', initial:'서', bg:'#8a7f9a', dir:'recv', note:'함께 기도하고 있어요. 힘내요', when:'어제', len:'0:18', heard:false },
+      { id:'c', name:'서준', initial:'서', bg:'#8a7f9a', dir:'sent', note:'어머니 회복을 위해 기도할게요', when:'어제', len:'0:31', heard:true },
+      { id:'d', name:'지민', initial:'지', bg:'#7c8a6d', dir:'group', to:'도현', note:'도현아 이번 주도 응원해', when:'2일 전', len:'0:22', heard:true },
+    ],
+  };
+
+  bars(seed, active) {
+    const hs = [10,18,7,22,14,26,11,20,8,24,16,12,28,9,19,13,23,10,17,7,21,15];
+    return hs.map((h,i) => ({ h: (((h*seed)%22)+6)+'px', c: active ? '#a86b4d' : '#d8ccb6' }));
+  }
+
+  componentDidMount() {
+    if (!document.getElementById('kakao-sdk')) {
+      const sc = document.createElement('script');
+      sc.id = 'kakao-sdk';
+      sc.src = 'https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js';
+      sc.async = true;
+      document.head.appendChild(sc);
+    }
+  }
+
+  kakaoLogin() {
+    this.setState({ kakaoLoading: true });
+    const KAKAO_JS_KEY = ''; // 카카오 개발자 앱의 JavaScript 키를 넣으면 실제 로그인이 연동됩니다
+    if (KAKAO_JS_KEY && window.Kakao) {
+      if (!window.Kakao.isInitialized()) window.Kakao.init(KAKAO_JS_KEY);
+      window.Kakao.Auth.authorize({ redirectUri: window.location.origin });
+      return;
+    }
+    setTimeout(() => this.setState({ kakaoLoading: false, loggedIn: true, onboardStep: 2 }), 950);
+  }
+
+  renderVals() {
+    const s = this.state;
+    if (!this.stripRef) this.stripRef = React.createRef();
+    const doneCount = s.members.filter(m => m.done).length;
+    const total = s.members.length;
+
+    const stampTypes = [
+      { key:'pray', label:'기도할게요' },
+      { key:'together', label:'함께해요' },
+      { key:'cheer', label:'힘내요' },
+      { key:'grace', label:'은혜예요' },
+    ];
+
+    const members = s.members.map(m => {
+      const expanded = s.expandedId === m.id;
+      const reacted = !!s.reacted[m.id];
+      const memStamps = s.stamps[m.id] || {};
+      const stampChips = stampTypes.filter(t => memStamps[t.key]).map(t => ({ label: t.label, count: memStamps[t.key] }));
+      const mine = s.myStamp[m.id];
+      const stampButtons = stampTypes.map(t => ({
+        label: t.label,
+        bg: mine === t.key ? '#a86b4d' : '#f4efe4',
+        color: mine === t.key ? '#fff' : '#8a7f6a',
+        border: mine === t.key ? '#a86b4d' : '#e6dbc7',
+        onPick: () => this.setState(st => {
+          const prev = st.myStamp[m.id];
+          const cur = { ...(st.stamps[m.id] || {}) };
+          if (prev) cur[prev] = Math.max(0, (cur[prev] || 0) - 1);
+          let nextMine = t.key;
+          if (prev === t.key) nextMine = null;
+          else cur[t.key] = (cur[t.key] || 0) + 1;
+          return { stamps: { ...st.stamps, [m.id]: cur }, myStamp: { ...st.myStamp, [m.id]: nextMine } };
+        }),
+      }));
+      return {
+        hasPreview: m.done && !!m.preview,
+        stampChips, stampButtons, hasStamps: stampChips.length > 0,
+        ...m,
+        onToggle: () => this.setState({ expandedId: expanded ? null : m.id, commentDraft: '' }, () => {
+          if (!expanded && this.stripRef && this.stripRef.current) {
+            const el = this.stripRef.current.querySelector('[data-mid="' + m.id + '"]');
+            if (el) this.stripRef.current.scrollTo({ left: Math.max(0, el.offsetLeft - 2), behavior: 'smooth' });
+          }
+        }),
+        collapsed: !expanded,
+        expanded,
+        notDone: !m.done,
+        colW: expanded ? '300px' : '104px',
+        colH: expanded ? '460px' : '214px',
+        cardBg: m.done ? '#fffdf8' : '#f4efe6',
+        cardBorder: expanded ? '#e6d4b8' : '#eadfca',
+        avatarOpacity: m.done ? 1 : 0.5,
+        dotColor: m.done ? '#7c8a6d' : '#ddd2bd',
+        badge: m.admin ? '리더' : '멤버',
+        badgeColor: m.admin ? '#a86b4d' : '#b6a88f',
+        streakLabel: m.streak > 0 ? m.streak + '일 연속 묵상' : '오늘 첫 묵상',
+        hasVoice: !!m.voice,
+        voiceFrom: m.voice ? m.voice.from : '',
+        voiceLen: m.voice ? m.voice.len : '',
+        comfortLabel: reacted ? '위로했어요' : '위로 보내기',
+        comfortBg: reacted ? '#f0ede4' : '#a86b4d',
+        comfortText: reacted ? '#a2957c' : '#fff',
+        comfortBorder: reacted ? '#e6dbc7' : '#a86b4d',
+        onComfort: () => this.setState(st => ({
+          reacted: { ...st.reacted, [m.id]: !st.reacted[m.id] },
+          members: st.members.map(x => x.id === m.id ? { ...x, hearts: x.hearts + (st.reacted[m.id] ? -1 : 1) } : x),
+        })),
+        onSendComment: () => this.setState(st => {
+          const t = st.commentDraft.trim();
+          if (!t) return {};
+          return { commentDraft: '', members: st.members.map(x => x.id === m.id
+            ? { ...x, comments: [...x.comments, { name:'나', initial:'나', bg:'#a86b4d', text:t }] } : x) };
+        }),
+        statusLabel: m.done ? '나눔 완료' : '대기 중',
+        statusText: m.done ? '#7c8a6d' : '#c9a24d',
+      };
+    });
+
+    const attendRows = s.members.map(m => {
+      const pattern = [true,true,m.done,true,m.streak>5,m.done,false];
+      return { name:m.name, initial:m.initial, bg:m.bg,
+        days: pattern.map(on => ({ bg: on ? '#7c8a6d' : '#ece3d2', mark: on ? '·' : '' })),
+        count: pattern.filter(Boolean).length + '/7' };
+    });
+
+    const cheerCards = [
+      { id:'a', from:'하은', to:'지민', when:'2시간 전', len:'0:24', initial:'하', bg:'#a86b4d' },
+      { id:'b', from:'서준', to:'도현', when:'어제', len:'0:18', initial:'서', bg:'#8a7f9a' },
+      { id:'c', from:'예린', to:'서준', when:'어제', len:'0:31', initial:'예', bg:'#9a8f7a' },
+    ].map((v,i) => {
+      const playing = !!s.plays[v.id];
+      return { ...v, icon: playing ? '❚❚' : '▶',
+        bars: this.bars(i+2, playing),
+        onPlay: () => this.setState(st => ({ plays: { ...st.plays, [v.id]: !st.plays[v.id] } })) };
+    });
+
+    const timeline = s.members.filter(m => m.done).sort((a,b) => a.postMin - b.postMin).map(m => ({
+      name: m.name, initial: m.initial, bg: m.bg, preview: m.preview, postedAt: m.postedAt,
+      onOpen: () => this.setState({ expandedId: m.id, commentDraft: '' }, () => {
+        if (this.stripRef && this.stripRef.current) {
+          const el = this.stripRef.current.querySelector('[data-mid="' + m.id + '"]');
+          if (el) this.stripRef.current.scrollTo({ left: Math.max(0, el.offsetLeft - 2), behavior: 'smooth' });
+        }
+      }),
+    }));
+
+    const navDefs = [
+      { key:'thread', label:'묵상' },
+      { key:'attend', label:'출석' },
+      { key:'cheer', label:'응원함' },
+      { key:'admin', label:'관리' },
+    ];
+    const navItems = navDefs.map(n => ({
+      label:n.label,
+      color: s.tab === n.key ? '#a86b4d' : '#c0b49a',
+      dot: s.tab === n.key ? 1 : 0.35,
+      onClick: () => this.setState({ tab: n.key }),
+    }));
+
+    return {
+      groupName: '새벽이슬 소그룹',
+      headerTitle: this.tabTitle(s.tab),
+      isThread: s.tab==='thread', isAttend: s.tab==='attend', isCheer: s.tab==='cheer', isAdmin: s.tab==='admin',
+      todayDate: '2026.07.22 (화)',
+      passageRef: '다니엘 3:16–18',
+      passageVerse: '"우리가 섬기는 하나님이 우리를 능히 건져내시겠고… 그렇게 하지 아니하실지라도 왕이여 우리는 왕의 신들을 섬기지 아니하리이다"',
+      passageLink: s.admin.link,
+      linkLabel: '함께 보는 설교 영상',
+      participationLabel: doneCount + '/' + total + ' 참여',
+      showWriteCta: !s.members.find(m=>m.id===4).done,
+      members,
+      timeline,
+      showOnboard: !s.onboarded,
+      isOnb0: s.onboardStep === 0, isOnb1: s.onboardStep === 1, isOnb2: s.onboardStep === 2, isOnb3: s.onboardStep === 3,
+      inviteCode: s.inviteCode,
+      onInviteInput: (e) => this.setState({ inviteCode: e.target.value }),
+      onboardNext: () => this.setState(st => ({ onboardStep: st.onboardStep + 1 })),
+      finishOnboard: () => this.setState({ onboarded: true }),
+      kakaoLoading: s.kakaoLoading,
+      kakaoLabel: s.kakaoLoading ? '카카오로 연결 중…' : '카카오로 시작하기',
+      onKakaoLogin: () => this.kakaoLogin(),
+      weekRange: '7.20 – 7.26',
+      groupRate: Math.round(doneCount/total*100) + '%',
+      topStreak: Math.max(...s.members.map(m=>m.streak)),
+      weekDays: ['월','화','수','목','금','토','일'],
+      attendRows,
+      cheerCards,
+      recBg: s.recording ? '#8a4a30' : '#a86b4d',
+      recAnim: s.recording ? 'breathe 1.4s ease-in-out infinite' : 'none',
+      recIconRadius: s.recording ? '5px' : '50%',
+      recLabel: s.recording ? '녹음 중… 탭하여 완료' : '눌러서 응원 녹음하기',
+      toggleRecord: () => this.setState(st => ({ recording: !st.recording })),
+      navItems,
+      writeOpen: s.writeOpen,
+      openWrite: () => this.setState({ writeOpen: true }),
+      closeWrite: () => this.setState({ writeOpen: false }),
+      draftReflection: s.draftReflection,
+      draftPrayer: s.draftPrayer,
+      onReflectionInput: (e) => this.setState({ draftReflection: e.target.value }),
+      onPrayerInput: (e) => this.setState({ draftPrayer: e.target.value }),
+      commentDraft: s.commentDraft,
+      onCommentInput: (e) => this.setState({ commentDraft: e.target.value }),
+      saveWrite: () => this.setState(st => ({
+        writeOpen: false, expandedId: 4,
+        members: st.members.map(m => m.id === 4 ? { ...m, done: true, streak: 1, postMin: 9998, postedAt: '방금',
+          preview: (st.draftReflection.trim() || '오늘 말씀을 마음에 새깁니다.').slice(0, 16),
+          reflection: st.draftReflection.trim() || '오늘 말씀을 마음에 새깁니다.',
+          prayer: st.draftPrayer.trim() || '오늘도 주님과 동행하게 하소서.' } : m),
+        draftReflection: '', draftPrayer: '',
+      })),
+      admin: s.admin,
+      onAdminDate: (e) => this.setState(st => ({ admin: { ...st.admin, date: e.target.value } })),
+      onAdminRef: (e) => this.setState(st => ({ admin: { ...st.admin, ref: e.target.value } })),
+      onAdminLink: (e) => this.setState(st => ({ admin: { ...st.admin, link: e.target.value } })),
+      onAdminDevotion: (e) => this.setState(st => ({ admin: { ...st.admin, devotion: e.target.value } })),
+      aiBtnLabel: s.aiUsed ? 'AI 다시 작성' : 'AI로 본문 작성',
+      onAiWrite: () => this.setState(st => ({ aiUsed: true, admin: { ...st.admin,
+        devotion: '느부갓네살 왕의 금 신상 앞, 세 친구는 죽음을 각오하고도 무릎 꿇지 않습니다. "그렇게 하지 아니하실지라도" — 응답보다 하나님 그분을 신뢰한 믿음을 오늘 우리 삶의 풀무불에 비춰 묵상해봅니다.' } })),
+      publishLabel: s.published ? '올렸어요 ✓' : '소그룹에 올리기',
+      onPublish: () => this.setState({ published: true }),
+    };
+  }
+
+  tabTitle(t){ return { thread:'오늘의 묵상', attend:'출석부', cheer:'응원함', admin:'관리자' }[t]; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+{
+  "expo": {
+    "name": "다니엘과 세친구",
+    "slug": "daniel-qt-app",
+    "scheme": "danielqt",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#f6f1e8",
+    "primaryColor": "#a86b4d",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.danielqt.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "소그룹 지체에게 보낼 응원 음성을 녹음하기 위해 마이크를 사용합니다.",
+        "CFBundleLocalizations": ["ko"],
+        "CFBundleDevelopmentRegion": "ko"
+      }
+    },
+    "android": {
+      "package": "com.danielqt.app",
+      "versionCode": 1,
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "permissions": ["RECORD_AUDIO", "POST_NOTIFICATIONS"],
+      "adaptiveIcon": {
+        "backgroundColor": "#f1e6d2",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-web-browser",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "소그룹 지체에게 보낼 응원 음성을 녹음하기 위해 마이크를 사용합니다."
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#f1e6d2",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 180
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#a86b4d"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": ""
+      }
+    }
+  }
+}
