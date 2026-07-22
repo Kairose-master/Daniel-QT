@@ -148,8 +148,27 @@ eas submit --platform android    # Google Play (계정 $25, 1회)
 eas submit --platform ios        # App Store (Apple Developer $99/년)
 ```
 
-`eas.json` 의 `submit.production` 에 Apple ID / App Store Connect App ID / Team ID 와
-Google Play 서비스 계정 키 경로를 채워야 합니다.
+`eas.json` 에는 `submit` 설정이 없습니다. EAS 가 빈 값을 허용하지 않아서
+자리표시자를 두면 `eas init` 부터 실패하기 때문입니다. 실제로 제출할 때
+아래를 `eas.json` 최상위에 추가하고 값을 채우세요.
+
+```json
+"submit": {
+  "production": {
+    "android": {
+      "serviceAccountKeyPath": "./google-play-key.json",
+      "track": "internal"
+    },
+    "ios": {
+      "appleId": "본인@example.com",
+      "ascAppId": "1234567890",
+      "appleTeamId": "ABCDE12345"
+    }
+  }
+}
+```
+
+안드로이드만 제출한다면 `ios` 블록은 아예 넣지 마세요.
 
 **스토어 심사 전에 준비할 것**
 - 개인정보처리방침 URL (음성 녹음·이메일 수집 항목 명시) — 두 스토어 모두 필수
