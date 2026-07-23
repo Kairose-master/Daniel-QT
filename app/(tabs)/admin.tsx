@@ -14,6 +14,7 @@ import { Avatar, Button, Empty, Field, Loading, Sans, Serif, TagLabel } from '..
 import {
   clearGroupApiKey,
   fetchApiKeyStatus,
+  fetchVerseText,
   generateDevotion,
   saveGroupApiKey,
   savePassage,
@@ -37,6 +38,7 @@ export default function AdminScreen() {
   const [devotion, setDevotion] = useState('');
   const [aiGenerated, setAiGenerated] = useState(false);
   const [aiBusy, setAiBusy] = useState(false);
+  const [verseBusy, setVerseBusy] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savedOnce, setSavedOnce] = useState(false);
 
@@ -77,6 +79,28 @@ export default function AdminScreen() {
   }
 
   if (board.loading) return <Loading />;
+
+  const loadVerse = async () => {
+    if (!activeGroup) return;
+    if (!keySet) {
+      Alert.alert('AI 키가 필요해요', '아래 "AI 설정"에서 Anthropic API 키를 먼저 등록해주세요.');
+      return;
+    }
+    if (!ref.trim()) {
+      Alert.alert('본문 범위를 먼저 적어주세요', '예: 다니엘 3:16–18');
+      return;
+    }
+    setVerseBusy(true);
+    try {
+      const text = await fetchVerseText(activeGroup.id, ref);
+      setVerse(text);
+      haptic.success();
+    } catch (e) {
+      Alert.alert('구절을 불러오지 못했어요', String(e instanceof Error ? e.message : e));
+    } finally {
+      setVerseBusy(false);
+    }
+  };
 
   const writeAi = async () => {
     if (!activeGroup) return;
@@ -250,12 +274,27 @@ export default function AdminScreen() {
             {/^\d{4}-\d{2}-\d{2}$/.test(date) ? formatKoreanDate(date) : ' '}
           </Sans>
 
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 6,
+            }}
+          >
+            <Sans style={{ fontSize: 11, color: colors.muted3 }}>성경 구절</Sans>
+            <Pressable onPress={loadVerse} disabled={verseBusy} hitSlop={6}>
+              <Sans style={{ fontSize: 12, color: colors.clay }}>
+                {verseBusy ? '불러오는 중…' : '✦ 개역개정 불러오기'}
+              </Sans>
+            </Pressable>
+          </View>
           <Field
             value={verse}
             onChangeText={setVerse}
             multiline
             serif
-            placeholder="성경 구절 (그대로 보여집니다)"
+            placeholder="본문 범위를 적고 '개역개정 불러오기'를 누르세요"
             style={{
               backgroundColor: colors.field,
               fontSize: 13,

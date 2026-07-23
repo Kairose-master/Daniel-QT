@@ -293,6 +293,17 @@ export async function deleteVoiceMessage(msg: VoiceMessage): Promise<void> {
 
 // ── AI 본문 ───────────────────────────────────────────────────
 
+/** 본문 범위(ref)를 읽어 개역개정 구절만 불러옵니다. */
+export async function fetchVerseText(groupId: string, ref: string): Promise<string> {
+  const { data, error } = await supabase.functions.invoke<{ verse_text?: string }>(
+    'generate-devotion',
+    { body: { group_id: groupId, ref, verse_only: true } },
+  );
+  if (error) throw new Error(await extractFunctionError(error));
+  if (!data?.verse_text) throw new Error('구절을 불러오지 못했어요.');
+  return data.verse_text;
+}
+
 export async function generateDevotion(
   groupId: string,
   ref: string,

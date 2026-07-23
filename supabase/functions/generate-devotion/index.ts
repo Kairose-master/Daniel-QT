@@ -33,7 +33,7 @@ Deno.serve(async (req: Request) => {
     const { data: me } = await asUser.auth.getUser();
     if (!me?.user) return json({ error: '로그인이 필요합니다' }, 401);
 
-    const { group_id, ref, verse_text } = await req.json();
+    const { group_id, ref, verse_text, verse_only } = await req.json();
     if (!group_id) return json({ error: 'group_id 가 필요합니다' }, 400);
     if (!ref || typeof ref !== 'string') return json({ error: 'ref 가 필요합니다' }, 400);
 
@@ -65,24 +65,34 @@ Deno.serve(async (req: Request) => {
     }
 
     const needVerse = !verse_text || !verse_text.trim();
-    const prompt = [
-      `성경 본문 범위: ${ref}`,
-      verse_text ? `이미 입력된 본문: ${verse_text}` : null,
-      '',
-      '아래 두 가지를 JSON 으로만 출력해주세요. 코드블록이나 설명 없이 순수 JSON 객체 하나만.',
-      '',
-      needVerse
-        ? '1) verse_text: 위 본문 범위의 성경 구절을 개역개정판으로 채워주세요. 여러 절이면 이어서, 자연스럽게 줄바꿈해도 됩니다.'
-        : '1) verse_text: 입력된 본문을 그대로 두세요.',
-      '2) devotion: 이 본문으로 소그룹 QT 나눔을 위한 "묵상 안내 글".',
-      '   - 한국어 존댓말, 3~4문장, 200자 내외.',
-      '   - 따뜻하고 잔잔한 톤. 과장된 표현이나 이모지 금지.',
-      '   - 본문의 핵심을 한 줄로 짚고, 오늘 우리 삶에 비추어 묵상할 질문으로 마무리.',
-      '',
-      '출력 형식 예시: {"verse_text": "...", "devotion": "..."}',
-    ]
-      .filter(Boolean)
-      .join('\n');
+    const prompt = verse_only
+      ? [
+          `성경 본문 범위: ${ref}`,
+          '',
+          '위 범위의 성경 구절을 개역개정판 그대로 옮겨 JSON 으로만 출력해주세요.',
+          '- 절 번호 없이 본문만. 여러 절이면 이어서, 자연스럽게 줄바꿈해도 됩니다.',
+          '- 코드블록이나 설명 없이 순수 JSON 객체 하나만.',
+          '',
+          '출력 형식 예시: {"verse_text": "..."}',
+        ].join('\n')
+      : [
+          `성경 본문 범위: ${ref}`,
+          verse_text ? `이미 입력된 본문: ${verse_text}` : null,
+          '',
+          '아래 두 가지를 JSON 으로만 출력해주세요. 코드블록이나 설명 없이 순수 JSON 객체 하나만.',
+          '',
+          needVerse
+            ? '1) verse_text: 위 본문 범위의 성경 구절을 개역개정판으로 채워주세요. 여러 절이면 이어서, 자연스럽게 줄바꿈해도 됩니다.'
+            : '1) verse_text: 입력된 본문을 그대로 두세요.',
+          '2) devotion: 이 본문으로 소그룹 QT 나눔을 위한 "묵상 안내 글".',
+          '   - 한국어 존댓말, 3~4문장, 200자 내외.',
+          '   - 따뜻하고 잔잔한 톤. 과장된 표현이나 이모지 금지.',
+          '   - 본문의 핵심을 한 줄로 짚고, 오늘 우리 삶에 비추어 묵상할 질문으로 마무리.',
+          '',
+          '출력 형식 예시: {"verse_text": "...", "devotion": "..."}',
+        ]
+          .filter(Boolean)
+          .join('\n');
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -130,8 +140,14 @@ Deno.serve(async (req: Request) => {
       devotion = (parsed.devotion ?? '').toString().trim();
       outVerse = (parsed.verse_text ?? '').toString().trim() || undefined;
     } catch {
-      // JSON 파싱 실패 시 전체를 묵상 글로 사용합니다.
-      devotion = raw;
+      // JSON 파싱 실패 시: 구절만 요청한 경우 전체를 구절로, 아니면 묵상 글로.
+      if (verse_only) outVerse = raw;
+      else devotion = raw;
+    }
+
+    if (verse_only) {
+      if (!outVerse) return json({ error: '구절을 불러오지 못했어요' }, 502);
+      return json({ verse_text: outVerse });
     }
 
     if (!devotion) return json({ error: '묵상 글을 만들지 못했어요' }, 502);
