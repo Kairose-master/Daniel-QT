@@ -293,14 +293,46 @@ export async function deleteVoiceMessage(msg: VoiceMessage): Promise<void> {
 
 // ── AI 본문 ───────────────────────────────────────────────────
 
-export async function generateDevotion(ref: string, verseText?: string | null) {
+export async function generateDevotion(
+  groupId: string,
+  ref: string,
+  verseText?: string | null,
+) {
   const { data, error } = await supabase.functions.invoke<{
     devotion: string;
     verse_text?: string;
-  }>('generate-devotion', { body: { ref, verse_text: verseText ?? null } });
+  }>('generate-devotion', {
+    body: { group_id: groupId, ref, verse_text: verseText ?? null },
+  });
   if (error) throw new Error(error.message);
   if (!data?.devotion) throw new Error('묵상 글을 받지 못했어요.');
   return data;
+}
+
+// ── 소그룹 AI 키 (리더 전용) ──────────────────────────────────
+
+/** 키가 등록되어 있는지만 확인 (실제 키 값은 가져오지 않습니다) */
+export async function fetchApiKeyStatus(groupId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('group_secrets')
+    .select('updated_at')
+    .eq('group_id', groupId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return !!data;
+}
+
+export async function saveGroupApiKey(groupId: string, key: string): Promise<void> {
+  const { error } = await supabase.from('group_secrets').upsert(
+    { group_id: groupId, anthropic_api_key: key.trim(), updated_at: new Date().toISOString() },
+    { onConflict: 'group_id' },
+  );
+  if (error) throw new Error(error.message);
+}
+
+export async function clearGroupApiKey(groupId: string): Promise<void> {
+  const { error } = await supabase.from('group_secrets').delete().eq('group_id', groupId);
+  if (error) throw new Error(error.message);
 }
 
 // ── 그룹 ──────────────────────────────────────────────────────

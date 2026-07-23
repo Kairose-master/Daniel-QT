@@ -88,6 +88,12 @@ export type PushToken = {
   updated_at: string;
 };
 
+export type GroupSecret = {
+  group_id: string;
+  anthropic_api_key: string | null;
+  updated_at: string;
+};
+
 type Table<Row, Required extends keyof Row = never> = {
   Row: Row;
   Insert: Partial<Row> & Pick<Row, Required>;
@@ -110,6 +116,7 @@ export type Database = {
         'group_id' | 'from_user_id' | 'to_user_id' | 'storage_path'
       >;
       push_tokens: Table<PushToken, 'user_id' | 'token'>;
+      group_secrets: Table<GroupSecret, 'group_id'>;
     };
     Views: {
       qt_days: {

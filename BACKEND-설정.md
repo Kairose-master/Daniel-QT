@@ -25,17 +25,22 @@ npx supabase link --project-ref stogdbsokgdjfnmxcuds
 
 ---
 
-## 2. AI 본문 생성 켜기
+## 2. AI 본문 생성 켜기 (각 방 리더가 자기 키로 과금)
 
-관리 탭의 "✦ AI로 본문 작성" 버튼이 실제로 동작하게 합니다.
+중앙 키를 쓰지 않습니다. **각 소그룹 리더가 앱 안에서 본인 Anthropic 키를 등록**하고,
+그 방의 AI 사용료는 그 리더에게 청구됩니다. 배포자(당신)는 함수만 한 번 올리면 됩니다.
 
 ```
-npx supabase secrets set ANTHROPIC_API_KEY=sk-ant-...        # console.anthropic.com 에서 발급
 npx supabase functions deploy generate-devotion
 ```
 
-- 함수는 `claude-sonnet-5` 모델로 200자 내외 묵상 안내 글을 생성합니다.
-- 배포 전에는 버튼을 누르면 "Edge Function 배포를 확인해주세요" 안내가 뜹니다.
+- `ANTHROPIC_API_KEY` 시크릿은 **필요 없습니다.** 키는 방마다 `group_secrets` 테이블에
+  저장되고, 리더만 접근할 수 있게 RLS 로 보호됩니다 (0003_group_secrets.sql 실행 필요).
+- 함수는 요청자가 그 방의 리더인지 확인한 뒤, 저장된 키로 `claude-sonnet-5` 를 호출합니다.
+- 리더 사용법: 앱 > 관리 탭 > **AI 설정** 에서 `sk-ant-...` 키를 붙여넣고 저장.
+  키는 클라이언트로 다시 내려오지 않고, 상태(등록됨/없음)만 표시됩니다.
+
+> 먼저 `supabase/migrations/0003_group_secrets.sql` 을 SQL Editor 에서 실행하세요.
 
 ## 3. 푸시 알림 켜기
 
