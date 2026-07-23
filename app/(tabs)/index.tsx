@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -13,11 +13,8 @@ import {
 } from 'react-native';
 
 import { GroupSwitcher } from '../../src/components/GroupSwitcher';
-import {
-  CARD_COLLAPSED_W,
-  CARD_EXPANDED_W,
-  MemberCardView,
-} from '../../src/components/MemberCard';
+import { MemberDetailModal } from '../../src/components/MemberDetailModal';
+import { MosaicBoard } from '../../src/components/MosaicBoard';
 import {
   Avatar,
   Button,
@@ -38,8 +35,6 @@ import { useBoard } from '../../src/lib/useBoard';
 import { colors, radius } from '../../src/theme';
 import type { StampKind } from '../../src/types';
 
-const CARD_GAP = 10;
-
 export default function ThreadScreen() {
   const router = useRouter();
   const { activeGroup, userId, profile, memberships } = useSession();
@@ -50,29 +45,8 @@ export default function ThreadScreen() {
   const [writeOpen, setWriteOpen] = useState(false);
   const [roomsOpen, setRoomsOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const stripRef = useRef<ScrollView>(null);
 
-  const scrollToCard = useCallback(
-    (targetUserId: string) => {
-      const idx = board.cards.findIndex((c) => c.userId === targetUserId);
-      if (idx < 0) return;
-      const before = board.cards.slice(0, idx);
-      const x = before.reduce(
-        (sum, c) => sum + (c.userId === expandedId ? CARD_EXPANDED_W : CARD_COLLAPSED_W) + CARD_GAP,
-        0,
-      );
-      requestAnimationFrame(() => stripRef.current?.scrollTo({ x: Math.max(0, x - 2), animated: true }));
-    },
-    [board.cards, expandedId],
-  );
-
-  const toggle = (targetUserId: string) => {
-    setExpandedId((prev) => {
-      const next = prev === targetUserId ? null : targetUserId;
-      if (next) scrollToCard(next);
-      return next;
-    });
-  };
+  const openCard = board.cards.find((c) => c.userId === expandedId) ?? null;
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -107,8 +81,6 @@ export default function ThreadScreen() {
     haptic.success();
     setWriteOpen(false);
     await board.reload();
-    setExpandedId(userId);
-    scrollToCard(userId);
     if (activeGroup) {
       notifyGroup({
         groupId: activeGroup.id,
@@ -269,10 +241,7 @@ export default function ThreadScreen() {
           timeline.map((c) => (
             <Pressable
               key={c.userId}
-              onPress={() => {
-                setExpandedId(c.userId);
-                scrollToCard(c.userId);
-              }}
+              onPress={() => setExpandedId(c.userId)}
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -302,39 +271,15 @@ export default function ThreadScreen() {
           ))
         )}
 
-        {/* 함께 묵상한 사람들 */}
-        <View
-          style={{
-            marginTop: 24,
-            marginBottom: 12,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <SectionTitle>함께 묵상한 사람들</SectionTitle>
-          <Sans style={{ fontSize: 11, color: colors.labelSoft }}>탭하면 옆으로 펼쳐져요 →</Sans>
+        {/* 같은 하루, 함께한 묵상 (Setlog 식 모자이크) */}
+        <View style={{ marginTop: 24, marginBottom: 12 }}>
+          <SectionTitle>같은 하루, 함께한 묵상</SectionTitle>
+          <Sans style={{ fontSize: 11, color: colors.labelSoft, marginTop: 3 }}>
+            {board.doneCount}명이 나눴어요 · 탭하면 자세히 볼 수 있어요
+          </Sans>
         </View>
 
-        <ScrollView
-          ref={stripRef}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ gap: CARD_GAP, paddingVertical: 4, paddingHorizontal: 2 }}
-          style={{ marginHorizontal: -20, paddingHorizontal: 18 }}
-        >
-          {board.cards.map((c) => (
-            <MemberCardView
-              key={c.userId}
-              card={c}
-              expanded={expandedId === c.userId}
-              myUserId={userId ?? ''}
-              onToggle={() => toggle(c.userId)}
-              onStamp={handleStamp}
-              onComment={handleComment}
-            />
-          ))}
-        </ScrollView>
+        <MosaicBoard cards={board.cards} myUserId={userId ?? ''} onOpen={setExpandedId} />
       </ScrollView>
 
       <WriteSheet
@@ -355,6 +300,15 @@ export default function ThreadScreen() {
         onClose={() => setRoomsOpen(false)}
         title="어느 방에 올릴까요?"
         subtitle="고른 방의 오늘 본문에 나눔을 올려요"
+      />
+
+      <MemberDetailModal
+        card={openCard}
+        myUserId={userId ?? ''}
+        visible={!!openCard}
+        onClose={() => setExpandedId(null)}
+        onStamp={handleStamp}
+        onComment={handleComment}
       />
     </>
   );
