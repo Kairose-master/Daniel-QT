@@ -147,7 +147,14 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     const redirectTo = AuthSession.makeRedirectUri({ scheme: 'danielqt', path: 'auth' });
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'kakao',
-      options: { redirectTo, skipBrowserRedirect: true },
+      options: {
+        redirectTo,
+        skipBrowserRedirect: true,
+        // 이메일(account_email)은 비즈니스 인증이 있어야 동의받을 수 있어 요청하지
+        // 않습니다. 닉네임·프로필 이미지만 받습니다. (이메일 없이도 가입됩니다)
+        scopes: 'profile_nickname profile_image',
+        queryParams: { prompt: 'login' },
+      },
     });
     if (error) throw error;
     if (!data.url) throw new Error('카카오 로그인 주소를 받지 못했어요.');
