@@ -62,7 +62,7 @@ export function MemberCardView({
       }}
     >
       {expanded ? (
-        <ShareDetail
+        <ExpandedBody
           card={card}
           myUserId={myUserId}
           onClose={onToggle}
@@ -132,8 +132,7 @@ function CollapsedBody({ card }: { card: Card }) {
 
 // ── 펼친 상태 ─────────────────────────────────────────────────
 
-/** 나눔 상세 — 가로 카드(펼침)와 모자이크 상세 모달에서 함께 씁니다. */
-export function ShareDetail({
+function ExpandedBody({
   card,
   myUserId,
   onClose,
