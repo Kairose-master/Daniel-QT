@@ -5,6 +5,9 @@ import { fetchEntries, fetchMembers, fetchPassage, fetchQtDays, QtDay } from './
 import { addDays, dateKey, streakFrom } from './date';
 import { supabase } from './supabase';
 
+/** useBoard 인스턴스마다 고유한 Realtime 채널 이름을 주기 위한 카운터 */
+let boardChannelSeq = 0;
+
 export type Board = {
   loading: boolean;
   error: string | null;
@@ -32,6 +35,11 @@ export function useBoard(groupId: string | null, userId: string | null, date: st
 
   const passageIdRef = useRef<string | null>(null);
   passageIdRef.current = passage?.id ?? null;
+
+  // 홈과 관리 탭이 동시에 useBoard 를 쓰므로, 같은 topic 에 두 번 구독해
+  // Realtime 이 충돌하지 않도록 훅 인스턴스마다 고유한 채널 이름을 씁니다.
+  const channelIdRef = useRef<number>(0);
+  if (channelIdRef.current === 0) channelIdRef.current = ++boardChannelSeq;
 
   const load = useCallback(async () => {
     if (!groupId) {
@@ -66,7 +74,7 @@ export function useBoard(groupId: string | null, userId: string | null, date: st
   useEffect(() => {
     if (!groupId) return;
     const channel = supabase
-      .channel(`board:${groupId}`)
+      .channel(`board:${groupId}:${channelIdRef.current}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'qt_entries' }, () => load())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, () => load())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'stamps' }, () => load())

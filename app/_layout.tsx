@@ -11,6 +11,7 @@ import React, { useEffect } from 'react';
 import { View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { ErrorBoundary as ScreenErrorBoundary } from '../src/components/ErrorBoundary';
 import { Sans, Serif } from '../src/components/ui';
 import { useNotifications } from '../src/lib/notifications';
 import { SessionProvider } from '../src/lib/session';
@@ -39,13 +40,15 @@ export default function RootLayout() {
       <SessionProvider>
         <NotificationBridge />
         <StatusBar style="dark" />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: colors.paper },
-            animation: 'fade',
-          }}
-        />
+        <ScreenErrorBoundary>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: colors.paper },
+              animation: 'fade',
+            }}
+          />
+        </ScreenErrorBoundary>
       </SessionProvider>
     </SafeAreaProvider>
   );
