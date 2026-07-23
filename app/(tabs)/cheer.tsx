@@ -34,6 +34,7 @@ import { formatDuration, timeAgo } from '../../src/lib/date';
 import { haptic } from '../../src/lib/haptics';
 import { notifyGroup } from '../../src/lib/notifications';
 import { useSession } from '../../src/lib/session';
+import { supabase } from '../../src/lib/supabase';
 import { colors, radius } from '../../src/theme';
 import type { MemberWithProfile } from '../../src/types';
 
@@ -82,6 +83,22 @@ export default function CheerScreen() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Realtime — 새 응원 음성이 오거나 상태가 바뀌면 목록을 갱신합니다.
+  useEffect(() => {
+    if (!groupId) return;
+    const channel = supabase
+      .channel(`voice:${groupId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'voice_messages', filter: `group_id=eq.${groupId}` },
+        () => load(),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [groupId, load]);
 
   // 녹음 시작 / 정지
   const toggleRecord = async () => {

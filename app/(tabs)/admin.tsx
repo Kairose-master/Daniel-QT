@@ -121,6 +121,7 @@ export default function AdminScreen() {
         style={{ flex: 1, backgroundColor: colors.paper }}
         contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <Serif style={{ fontSize: 19, color: colors.ink800 }}>관리자 대시보드</Serif>
