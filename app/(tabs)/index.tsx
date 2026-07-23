@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 
+import { GroupSwitcher } from '../../src/components/GroupSwitcher';
 import {
   CARD_COLLAPSED_W,
   CARD_EXPANDED_W,
@@ -41,12 +42,13 @@ const CARD_GAP = 10;
 
 export default function ThreadScreen() {
   const router = useRouter();
-  const { activeGroup, userId, profile } = useSession();
+  const { activeGroup, userId, profile, memberships } = useSession();
   const today = dateKey();
   const board = useBoard(activeGroup?.id ?? null, userId, today);
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [writeOpen, setWriteOpen] = useState(false);
+  const [roomsOpen, setRoomsOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const stripRef = useRef<ScrollView>(null);
 
@@ -337,11 +339,22 @@ export default function ThreadScreen() {
 
       <WriteSheet
         visible={writeOpen}
+        groupName={activeGroup?.name ?? ''}
+        hasPassage={!!board.passage}
+        multiRoom={memberships.length > 1}
+        onOpenRooms={() => setRoomsOpen(true)}
         passageRef={board.passage?.ref ?? ''}
         initialReflection={board.myEntry?.reflection ?? ''}
         initialPrayer={board.myEntry?.prayer ?? ''}
         onClose={() => setWriteOpen(false)}
         onSubmit={submitEntry}
+      />
+
+      <GroupSwitcher
+        visible={roomsOpen}
+        onClose={() => setRoomsOpen(false)}
+        title="어느 방에 올릴까요?"
+        subtitle="고른 방의 오늘 본문에 나눔을 올려요"
       />
     </>
   );
@@ -351,6 +364,10 @@ export default function ThreadScreen() {
 
 function WriteSheet({
   visible,
+  groupName,
+  hasPassage,
+  multiRoom,
+  onOpenRooms,
   passageRef,
   initialReflection,
   initialPrayer,
@@ -358,6 +375,10 @@ function WriteSheet({
   onSubmit,
 }: {
   visible: boolean;
+  groupName: string;
+  hasPassage: boolean;
+  multiRoom: boolean;
+  onOpenRooms: () => void;
   passageRef: string;
   initialReflection: string;
   initialPrayer: string;
@@ -377,6 +398,10 @@ function WriteSheet({
   }, [visible, initialReflection, initialPrayer]);
 
   const submit = async () => {
+    if (!hasPassage) {
+      Alert.alert('이 방은 아직 오늘 본문이 없어요', '리더가 본문을 올리면 나눔을 쓸 수 있어요.');
+      return;
+    }
     if (!reflection.trim()) {
       Alert.alert('느낀점을 적어주세요');
       return;
@@ -395,7 +420,7 @@ function WriteSheet({
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView
         style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(44,38,29,0.4)' }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <Pressable style={{ flex: 1 }} onPress={onClose} />
         <View
@@ -423,8 +448,32 @@ function WriteSheet({
               <Sans style={{ fontSize: 20, color: colors.muted5 }}>×</Sans>
             </Pressable>
           </View>
-          <Sans style={{ fontSize: 12, color: colors.muted3, marginTop: 4, marginBottom: 16 }}>
-            {passageRef}
+
+          {/* 올릴 방 선택 */}
+          <Pressable
+            onPress={onOpenRooms}
+            disabled={!multiRoom}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 8,
+              alignSelf: 'flex-start',
+              marginTop: 10,
+              paddingHorizontal: 12,
+              paddingVertical: 7,
+              backgroundColor: colors.tint,
+              borderWidth: 1,
+              borderColor: colors.lineField,
+              borderRadius: radius.pill,
+            }}
+          >
+            <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.clay }} />
+            <Sans style={{ fontSize: 12, color: colors.ink600 }}>{groupName}</Sans>
+            {multiRoom && <Sans style={{ fontSize: 11, color: colors.clay }}>방 바꾸기 ▾</Sans>}
+          </Pressable>
+
+          <Sans style={{ fontSize: 12, color: colors.muted3, marginTop: 8, marginBottom: 16 }}>
+            {hasPassage ? passageRef : '이 방은 아직 오늘 본문이 없어요'}
           </Sans>
 
           <View style={{ marginBottom: 6 }}>

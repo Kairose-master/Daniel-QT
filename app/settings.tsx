@@ -200,7 +200,7 @@ export default function Settings() {
         <Button
           variant="outline"
           label="새 소그룹 참여 / 만들기"
-          onPress={() => router.push('/onboarding')}
+          onPress={() => router.push('/onboarding?add=1')}
           style={{ marginTop: 24 }}
         />
 

@@ -1,8 +1,9 @@
 import { Tabs, useRouter } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { GroupSwitcher } from '../../src/components/GroupSwitcher';
 import { LogoMark } from '../../src/components/LogoMark';
 import { Avatar, Sans, Serif } from '../../src/components/ui';
 import { useSession } from '../../src/lib/session';
@@ -61,7 +62,9 @@ export default function TabsLayout() {
 function AppHeader({ title }: { title: string }) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { activeGroup, profile, userId } = useSession();
+  const { activeGroup, profile, userId, memberships } = useSession();
+  const [switcherOpen, setSwitcherOpen] = useState(false);
+  const multiRoom = memberships.length > 1;
 
   return (
     <View
@@ -79,20 +82,46 @@ function AppHeader({ title }: { title: string }) {
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 11, flex: 1 }}>
         <LogoMark size={34} />
-        <View style={{ flex: 1 }}>
-          <Sans
-            numberOfLines={1}
-            style={{ fontSize: 11, letterSpacing: 3, color: colors.labelSoft }}
-          >
-            {activeGroup?.name ?? '소그룹'}
-          </Sans>
+        {/* 방 이름 탭 → 소그룹 전환 시트 */}
+        <Pressable
+          style={{ flex: 1 }}
+          onPress={() => setSwitcherOpen(true)}
+          hitSlop={6}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <Sans
+              numberOfLines={1}
+              style={{ fontSize: 11, letterSpacing: 3, color: colors.labelSoft }}
+            >
+              {activeGroup?.name ?? '소그룹'}
+            </Sans>
+            <Sans style={{ fontSize: 9, color: colors.labelSoft }}>▾</Sans>
+            {multiRoom && (
+              <View
+                style={{
+                  backgroundColor: colors.clay,
+                  borderRadius: 8,
+                  paddingHorizontal: 5,
+                  paddingVertical: 1,
+                }}
+              >
+                <Sans style={{ fontSize: 8, color: colors.white }}>{memberships.length}</Sans>
+              </View>
+            )}
+          </View>
           <Serif style={{ fontSize: 20, color: colors.ink800, marginTop: 2 }}>{title}</Serif>
-        </View>
+        </Pressable>
       </View>
 
       <Pressable onPress={() => router.push('/settings')} hitSlop={8}>
         <Avatar name={profile?.name ?? '나'} seed={userId ?? 'me'} size={38} />
       </Pressable>
+
+      <GroupSwitcher
+        visible={switcherOpen}
+        onClose={() => setSwitcherOpen(false)}
+        subtitle="고른 방의 오늘 묵상으로 이동해요"
+      />
     </View>
   );
 }

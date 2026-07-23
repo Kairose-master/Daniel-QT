@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
@@ -21,17 +21,21 @@ type Step = 'splash' | 'login' | 'group' | 'done';
 
 export default function Onboarding() {
   const router = useRouter();
+  const { add } = useLocalSearchParams<{ add?: string }>();
+  // 이미 소그룹이 있는 사용자가 "새 소그룹 참여/만들기"로 들어온 경우
+  const addMode = add === '1';
   const { session, memberships, activeGroup, signOut } = useSession();
-  const [step, setStep] = useState<Step>('splash');
+  const [step, setStep] = useState<Step>(addMode ? 'group' : 'splash');
 
   // 로그인 상태에 따라 단계를 맞춥니다 (앱을 껐다 켜도 이어서).
+  // 단, 새 소그룹 추가 모드에서는 곧바로 group 단계에 머뭅니다.
   useEffect(() => {
-    if (!session) return;
+    if (!session || addMode) return;
     setStep((s) => {
       if (s === 'done') return s;
       return memberships.length > 0 ? 'done' : 'group';
     });
-  }, [session, memberships.length]);
+  }, [session, memberships.length, addMode]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#f1e6d2' }}>
@@ -42,7 +46,12 @@ export default function Onboarding() {
         <View style={{ flex: 1, paddingHorizontal: 30, paddingTop: 24, paddingBottom: 28 }}>
           {step === 'splash' && <SplashStep onNext={() => setStep('login')} />}
           {step === 'login' && <LoginStep />}
-          {step === 'group' && <GroupStep onSignOut={signOut} />}
+          {step === 'group' && (
+            <GroupStep
+              onSignOut={signOut}
+              onDone={addMode ? () => router.replace('/(tabs)') : undefined}
+            />
+          )}
           {step === 'done' && (
             <DoneStep
               groupName={activeGroup?.name ?? ''}
@@ -264,7 +273,7 @@ function LoginStep() {
 
 // ── 3. 소그룹 참여 / 만들기 ───────────────────────────────────
 
-function GroupStep({ onSignOut }: { onSignOut: () => void }) {
+function GroupStep({ onSignOut, onDone }: { onSignOut: () => void; onDone?: () => void }) {
   const { joinGroup, createGroup } = useSession();
   const [mode, setMode] = useState<'join' | 'create'>('join');
   const [code, setCode] = useState('');
@@ -278,6 +287,7 @@ function GroupStep({ onSignOut }: { onSignOut: () => void }) {
     try {
       if (mode === 'join') await joinGroup(code);
       else await createGroup(groupName);
+      onDone?.();
     } catch (e) {
       setError(messageOf(e));
     } finally {
@@ -375,9 +385,9 @@ function GroupStep({ onSignOut }: { onSignOut: () => void }) {
           disabled={mode === 'join' ? code.trim().length < 4 : groupName.trim().length < 1}
           style={{ borderRadius: 15 }}
         />
-        <Pressable onPress={onSignOut} style={{ paddingVertical: 8 }}>
+        <Pressable onPress={onDone ?? onSignOut} style={{ paddingVertical: 8 }}>
           <Sans style={{ textAlign: 'center', fontSize: 12, color: colors.muted4 }}>
-            다른 계정으로 로그인
+            {onDone ? '취소' : '다른 계정으로 로그인'}
           </Sans>
         </Pressable>
       </View>
