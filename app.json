@@ -16,7 +16,9 @@
       "buildNumber": "1",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "소그룹 지체에게 보낼 응원 음성을 녹음하기 위해 마이크를 사용합니다.",
-        "CFBundleLocalizations": ["ko"],
+        "CFBundleLocalizations": [
+          "ko"
+        ],
         "CFBundleDevelopmentRegion": "ko"
       }
     },
@@ -25,7 +27,14 @@
       "versionCode": 1,
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "permissions": ["RECORD_AUDIO", "POST_NOTIFICATIONS"],
+      "permissions": [
+        "RECORD_AUDIO",
+        "POST_NOTIFICATIONS",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#f1e6d2",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -64,8 +73,10 @@
     ],
     "extra": {
       "eas": {
-        "projectId": ""
-      }
-    }
+        "projectId": "46aebecc-cdcf-4387-a871-376529aef25a"
+      },
+      "router": {}
+    },
+    "owner": "jinu0633"
   }
 }
