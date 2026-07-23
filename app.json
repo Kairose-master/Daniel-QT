@@ -68,7 +68,8 @@
           "color": "#a86b4d"
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      "expo-sharing"
     ],
     "extra": {
       "eas": {

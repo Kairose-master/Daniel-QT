@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 
 import { GroupSwitcher } from '../../src/components/GroupSwitcher';
+import { ShareCardModal } from '../../src/components/ShareCard';
 import {
   CARD_COLLAPSED_W,
   CARD_EXPANDED_W,
@@ -49,6 +50,7 @@ export default function ThreadScreen() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [writeOpen, setWriteOpen] = useState(false);
   const [roomsOpen, setRoomsOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const stripRef = useRef<ScrollView>(null);
 
@@ -239,12 +241,20 @@ export default function ThreadScreen() {
           />
         )}
         {board.passage && board.myEntry && (
-          <Button
-            variant="outline"
-            label="내 나눔 고치기"
-            onPress={() => setWriteOpen(true)}
-            style={{ marginTop: 16, borderRadius: 16 }}
-          />
+          <View style={{ flexDirection: 'row', gap: 8, marginTop: 16 }}>
+            <Button
+              variant="outline"
+              label="내 나눔 고치기"
+              onPress={() => setWriteOpen(true)}
+              style={{ flex: 1, borderRadius: 16 }}
+            />
+            <Button
+              variant="dashed"
+              label="카드로 나누기"
+              onPress={() => setShareOpen(true)}
+              style={{ flex: 1, borderRadius: 16 }}
+            />
+          </View>
         )}
 
         {/* 타임라인 */}
@@ -356,6 +366,18 @@ export default function ThreadScreen() {
         title="어느 방에 올릴까요?"
         subtitle="고른 방의 오늘 본문에 나눔을 올려요"
       />
+
+      {board.passage && board.myEntry && (
+        <ShareCardModal
+          visible={shareOpen}
+          onClose={() => setShareOpen(false)}
+          name={profile?.name ?? '나'}
+          ref={board.passage.ref}
+          date={board.passage.date}
+          reflection={board.myEntry.reflection}
+          prayer={board.myEntry.prayer}
+        />
+      )}
     </>
   );
 }
