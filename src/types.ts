@@ -117,10 +117,25 @@ export type Database = {
       >;
       push_tokens: Table<PushToken, 'user_id' | 'token'>;
       group_secrets: Table<GroupSecret, 'group_id'>;
+      fruit_ledger: Table<
+        {
+          id: string;
+          user_id: string;
+          group_id: string | null;
+          delta: number;
+          reason: string;
+          created_at: string;
+        },
+        'user_id' | 'delta' | 'reason'
+      >;
     };
     Views: {
       qt_days: {
         Row: { group_id: string; user_id: string; date: string; qt_entry_id: string };
+        Relationships: [];
+      };
+      fruit_totals: {
+        Row: { user_id: string; total: number };
         Relationships: [];
       };
     };

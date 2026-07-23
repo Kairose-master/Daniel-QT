@@ -1,11 +1,12 @@
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { FruitMark } from '../src/components/FruitMark';
 import { Avatar, Button, Field, Sans, Serif, TagLabel } from '../src/components/ui';
-import { deleteAccount, leaveGroup } from '../src/lib/api';
+import { deleteAccount, fetchMyFruit, leaveGroup } from '../src/lib/api';
 import { haptic } from '../src/lib/haptics';
 import { useSession } from '../src/lib/session';
 import { colors, radius } from '../src/theme';
@@ -28,6 +29,11 @@ export default function Settings() {
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [myFruit, setMyFruit] = useState(0);
+
+  useEffect(() => {
+    if (userId) fetchMyFruit(userId).then(setMyFruit).catch(() => {});
+  }, [userId]);
 
   const onLeaveGroup = () => {
     if (!activeGroup || !userId) return;
@@ -122,8 +128,14 @@ export default function Settings() {
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }}>
-        <View style={{ alignItems: 'center', paddingVertical: 12 }}>
+        <View style={{ alignItems: 'center', paddingVertical: 12, gap: 10 }}>
           <Avatar name={profile?.name ?? '나'} seed={userId ?? 'me'} size={64} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <FruitMark size={16} />
+            <Sans style={{ fontSize: 13, color: colors.ink500 }}>
+              묵상 열매 {myFruit}개
+            </Sans>
+          </View>
         </View>
 
         <View style={{ marginTop: 12, marginBottom: 6 }}>

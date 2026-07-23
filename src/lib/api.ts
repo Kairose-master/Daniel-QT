@@ -335,6 +335,27 @@ export async function clearGroupApiKey(groupId: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
+// ── 묵상 열매 ─────────────────────────────────────────────────
+
+export async function fetchMyFruit(userId: string): Promise<number> {
+  const { data, error } = await supabase
+    .from('fruit_totals')
+    .select('total')
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return data?.total ?? 0;
+}
+
+/** 소그룹 멤버들의 열매 합계 (userId → total) */
+export async function fetchFruitTotals(userIds: string[]): Promise<Map<string, number>> {
+  if (userIds.length === 0) return new Map();
+  const rows = (unwrap(
+    await supabase.from('fruit_totals').select('user_id, total').in('user_id', userIds),
+  ) ?? []) as unknown as { user_id: string; total: number }[];
+  return new Map(rows.map((r) => [r.user_id, r.total]));
+}
+
 // ── 그룹 ──────────────────────────────────────────────────────
 
 export async function fetchGroup(groupId: string): Promise<Group> {

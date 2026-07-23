@@ -1,8 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 
+import { FruitMark } from '../../src/components/FruitMark';
 import { Avatar, Empty, Loading, Sans, Serif } from '../../src/components/ui';
-import { fetchMembers, fetchPassagesInRange, fetchQtDays, QtDay } from '../../src/lib/api';
+import {
+  fetchFruitTotals,
+  fetchMembers,
+  fetchPassagesInRange,
+  fetchQtDays,
+  QtDay,
+} from '../../src/lib/api';
 import {
   addDays,
   currentWeekKeys,
@@ -16,7 +23,7 @@ import { colors, radius } from '../../src/theme';
 import type { MemberWithProfile } from '../../src/types';
 
 export default function AttendScreen() {
-  const { activeGroup } = useSession();
+  const { activeGroup, userId } = useSession();
   const groupId = activeGroup?.id ?? null;
 
   const [loading, setLoading] = useState(true);
@@ -24,6 +31,7 @@ export default function AttendScreen() {
   const [members, setMembers] = useState<MemberWithProfile[]>([]);
   const [days, setDays] = useState<QtDay[]>([]);
   const [passageDates, setPassageDates] = useState<string[]>([]);
+  const [fruit, setFruit] = useState<Map<string, number>>(new Map());
 
   const week = useMemo(() => currentWeekKeys(), []);
 
@@ -38,6 +46,7 @@ export default function AttendScreen() {
     setMembers(ms);
     setDays(ds);
     setPassageDates(ps.map((p) => p.date));
+    setFruit(await fetchFruitTotals(ms.map((m) => m.user_id)));
     setLoading(false);
   }, [groupId, week]);
 
@@ -65,6 +74,8 @@ export default function AttendScreen() {
     0,
   );
 
+  const myFruit = (userId && fruit.get(userId)) || 0;
+
   if (loading) return <Loading />;
 
   return (
@@ -88,9 +99,33 @@ export default function AttendScreen() {
         {weekRangeLabel(week)} · 소그룹 전체 참여율 {groupRate}%
       </Sans>
 
-      <View style={{ flexDirection: 'row', gap: 10, marginTop: 18, marginBottom: 22 }}>
+      <View style={{ flexDirection: 'row', gap: 10, marginTop: 18, marginBottom: 12 }}>
         <Stat value={`${groupRate}%`} label="주간 평균 참여율" color={colors.clay} />
         <Stat value={`${topStreak}일`} label="최장 연속 묵상" color={colors.sage} />
+      </View>
+
+      {/* 묵상 열매 — 잔잔한 크레딧 */}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 10,
+          backgroundColor: colors.tint,
+          borderWidth: 1,
+          borderColor: colors.lineWarm,
+          borderRadius: 16,
+          padding: 14,
+          marginBottom: 22,
+        }}
+      >
+        <FruitMark size={22} />
+        <View style={{ flex: 1 }}>
+          <Sans style={{ fontSize: 11, color: colors.muted3 }}>내가 모은 묵상 열매</Sans>
+          <Sans style={{ fontSize: 12, color: colors.muted4, marginTop: 1 }}>
+            하루하루의 묵상이 열매로 맺혀요
+          </Sans>
+        </View>
+        <Serif style={{ fontSize: 22, color: colors.gold }}>{myFruit}</Serif>
       </View>
 
       {members.length === 0 ? (
@@ -133,9 +168,17 @@ export default function AttendScreen() {
                 }}
               >
                 <Avatar name={m.profile.name} seed={m.user_id} size={30} />
-                <Sans style={{ width: 48, fontSize: 13, color: colors.ink600 }} numberOfLines={1}>
-                  {m.profile.name}
-                </Sans>
+                <View style={{ width: 54 }}>
+                  <Sans style={{ fontSize: 13, color: colors.ink600 }} numberOfLines={1}>
+                    {m.profile.name}
+                  </Sans>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 1 }}>
+                    <FruitMark size={11} />
+                    <Sans style={{ fontSize: 10, color: colors.muted3 }}>
+                      {fruit.get(m.user_id) ?? 0}
+                    </Sans>
+                  </View>
+                </View>
                 <View
                   style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', gap: 9 }}
                 >
