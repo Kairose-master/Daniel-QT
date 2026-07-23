@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import React, { useCallback, useRef, useState } from 'react';
 import {
   Alert,
@@ -39,6 +40,7 @@ import type { StampKind } from '../../src/types';
 const CARD_GAP = 10;
 
 export default function ThreadScreen() {
+  const router = useRouter();
   const { activeGroup, userId, profile } = useSession();
   const today = dateKey();
   const board = useBoard(activeGroup?.id ?? null, userId, today);
@@ -244,8 +246,19 @@ export default function ThreadScreen() {
         )}
 
         {/* 타임라인 */}
-        <View style={{ marginTop: 24, marginBottom: 12 }}>
+        <View
+          style={{
+            marginTop: 24,
+            marginBottom: 12,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
           <SectionTitle>오늘의 타임라인</SectionTitle>
+          <Pressable onPress={() => router.push('/archive')} hitSlop={8}>
+            <Sans style={{ fontSize: 12, color: colors.clay }}>지난 묵상 →</Sans>
+          </Pressable>
         </View>
 
         {timeline.length === 0 ? (

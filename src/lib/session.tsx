@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Session } from '@supabase/supabase-js';
 import * as AuthSession from 'expo-auth-session';
+import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import React, {
   createContext,
@@ -85,11 +86,17 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       if (alive) setLoading(false);
     });
 
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, next) => {
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event, next) => {
       if (!alive) return;
       setSession(next);
       if (next) {
         await loadProfileAndGroups(next.user.id);
+        // 비밀번호 재설정 링크로 들어오면 새 비밀번호 화면으로 보냅니다.
+        if (event === 'PASSWORD_RECOVERY') {
+          try {
+            router.replace('/reset-password');
+          } catch {}
+        }
       } else {
         setProfile(null);
         setMemberships([]);

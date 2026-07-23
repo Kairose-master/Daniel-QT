@@ -86,6 +86,7 @@ function SplashStep({ onNext }: { onNext: () => void }) {
 // ── 2. 로그인 ─────────────────────────────────────────────────
 
 function LoginStep() {
+  const router = useRouter();
   const { signInWithEmail, signUpWithEmail, signInWithKakao, resetPassword } = useSession();
   const [mode, setMode] = useState<'choose' | 'email'>('choose');
   const [isSignUp, setIsSignUp] = useState(false);
@@ -240,17 +241,22 @@ function LoginStep() {
           <Button variant="outline" label="이메일로 시작하기" onPress={() => setMode('email')} />
         )}
 
-        <Sans
-          style={{
-            textAlign: 'center',
-            fontSize: 11,
-            color: '#b3a68d',
-            marginTop: 6,
-            lineHeight: 18,
-          }}
-        >
-          시작하면 이용약관과 개인정보처리방침에{'\n'}동의하는 것으로 간주됩니다
-        </Sans>
+        <View style={{ marginTop: 6, alignItems: 'center' }}>
+          <Sans
+            style={{ textAlign: 'center', fontSize: 11, color: '#b3a68d', lineHeight: 18 }}
+          >
+            시작하면 아래에 동의하는 것으로 간주됩니다
+          </Sans>
+          <View style={{ flexDirection: 'row', gap: 6, marginTop: 4 }}>
+            <Pressable onPress={() => router.push('/legal?type=terms')} hitSlop={6}>
+              <Sans style={{ fontSize: 11, color: colors.clay }}>이용약관</Sans>
+            </Pressable>
+            <Sans style={{ fontSize: 11, color: '#b3a68d' }}>·</Sans>
+            <Pressable onPress={() => router.push('/legal?type=privacy')} hitSlop={6}>
+              <Sans style={{ fontSize: 11, color: colors.clay }}>개인정보처리방침</Sans>
+            </Pressable>
+          </View>
+        </View>
       </View>
     </ScrollView>
   );

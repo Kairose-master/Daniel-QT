@@ -233,6 +233,18 @@ export default function Settings() {
           </Sans>
         </Pressable>
 
+        <View
+          style={{ flexDirection: 'row', justifyContent: 'center', gap: 14, paddingVertical: 6 }}
+        >
+          <Pressable onPress={() => router.push('/legal?type=terms')} hitSlop={6}>
+            <Sans style={{ fontSize: 12, color: colors.muted2 }}>이용약관</Sans>
+          </Pressable>
+          <Sans style={{ fontSize: 12, color: colors.muted5 }}>·</Sans>
+          <Pressable onPress={() => router.push('/legal?type=privacy')} hitSlop={6}>
+            <Sans style={{ fontSize: 12, color: colors.muted2 }}>개인정보처리방침</Sans>
+          </Pressable>
+        </View>
+
         <View style={{ height: 1, backgroundColor: colors.line, marginVertical: 8 }} />
 
         <Pressable onPress={onDeleteAccount} disabled={busy} style={{ paddingVertical: 14 }}>

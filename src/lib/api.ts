@@ -59,6 +59,28 @@ export async function fetchLatestPassage(groupId: string): Promise<Passage | nul
   return (data as Passage) ?? null;
 }
 
+/** 아카이브용 — 최근 본문 목록 + 각 본문의 나눔 수 */
+export type PassageSummary = Passage & { entryCount: number };
+
+export async function fetchRecentPassages(
+  groupId: string,
+  limit = 60,
+): Promise<PassageSummary[]> {
+  const rows = (unwrap(
+    await supabase
+      .from('passages')
+      .select('*, qt_entries(count)')
+      .eq('group_id', groupId)
+      .order('date', { ascending: false })
+      .limit(limit),
+  ) ?? []) as unknown as (Passage & { qt_entries: { count: number }[] })[];
+
+  return rows.map((r) => {
+    const { qt_entries, ...passage } = r;
+    return { ...passage, entryCount: qt_entries?.[0]?.count ?? 0 };
+  });
+}
+
 export async function fetchPassagesInRange(
   groupId: string,
   from: string,
