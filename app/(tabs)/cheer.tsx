@@ -49,11 +49,26 @@ export default function CheerScreen() {
   const [messages, setMessages] = useState<VoiceView[]>([]);
   const [members, setMembers] = useState<MemberWithProfile[]>([]);
   const [filter, setFilter] = useState<Filter>('all');
-  const [pending, setPending] = useState<{ uri: string; duration: number } | null>(null);
+  const [pending, setPending] = useState<{
+    uri: string;
+    duration: number;
+    waveform: number[];
+  } | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
-  const recState = useAudioRecorderState(recorder, 250);
+  const recorder = useAudioRecorder({
+    ...RecordingPresets.HIGH_QUALITY,
+    isMeteringEnabled: true, // 녹음 중 진폭(metering) 을 받아 파형을 만듭니다
+  });
+  const recState = useAudioRecorderState(recorder, 100);
+
+  // 녹음 중 수집하는 진폭 샘플. dB(약 -60~0) → 0~100 으로 정규화.
+  const samplesRef = useRef<number[]>([]);
+  useEffect(() => {
+    if (!recState.isRecording || recState.metering == null) return;
+    const norm = Math.max(0, Math.min(1, (recState.metering + 60) / 60));
+    samplesRef.current.push(Math.round(norm * 100));
+  }, [recState.metering, recState.isRecording]);
 
   const load = useCallback(async () => {
     if (!groupId) return;
@@ -73,7 +88,9 @@ export default function CheerScreen() {
       await recorder.stop();
       const uri = recorder.uri;
       const seconds = Math.max(1, Math.round(recState.durationMillis / 1000));
-      if (uri) setPending({ uri, duration: seconds });
+      if (uri) {
+        setPending({ uri, duration: seconds, waveform: downsample(samplesRef.current, 40) });
+      }
       return;
     }
 
@@ -86,6 +103,7 @@ export default function CheerScreen() {
       return;
     }
     await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
+    samplesRef.current = []; // 새 녹음마다 파형 초기화
     await recorder.prepareToRecordAsync();
     recorder.record({ forDuration: MAX_SECONDS });
   };
@@ -94,7 +112,11 @@ export default function CheerScreen() {
   const wasRecording = useRef(false);
   useEffect(() => {
     if (wasRecording.current && !recState.isRecording && !pending && recorder.uri) {
-      setPending({ uri: recorder.uri, duration: MAX_SECONDS });
+      setPending({
+        uri: recorder.uri,
+        duration: MAX_SECONDS,
+        waveform: downsample(samplesRef.current, 40),
+      });
     }
     wasRecording.current = recState.isRecording;
   }, [recState.isRecording, pending, recorder]);
@@ -109,6 +131,7 @@ export default function CheerScreen() {
         toUserId,
         localUri: pending.uri,
         duration: pending.duration,
+        waveform: pending.waveform,
       });
       await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true });
       setPending(null);
@@ -385,7 +408,33 @@ function RecordButton({ recording, onPress }: { recording: boolean; onPress: () 
 
 // ── 음성 카드 ─────────────────────────────────────────────────
 
-const BAR_HEIGHTS = [10, 18, 7, 22, 14, 26, 11, 20, 8, 24, 16, 12, 28, 9, 19, 13, 23, 10, 17, 7, 21, 15];
+// 파형이 없는 옛 메시지용 데코 막대 (id 로 안정적으로 흔들어 보이게)
+const DECO = [10, 18, 7, 22, 14, 26, 11, 20, 8, 24, 16, 12, 28, 9, 19, 13, 23, 10, 17, 7, 21, 15];
+
+/** 실제 파형이 있으면 그것을, 없으면 데코 막대를 0~100 배열로 반환 */
+function barsFor(msg: VoiceView): number[] {
+  if (msg.waveform && msg.waveform.length > 0) {
+    return msg.waveform;
+  }
+  const base = msg.id.charCodeAt(0);
+  return DECO.map((h, i) => ((h * ((base + i) % 5 || 2)) % 22) * 4 + 20);
+}
+
+/** 임의 길이의 진폭 샘플을 정확히 n개 막대로 다운샘플 (구간 평균) */
+function downsample(samples: number[], n: number): number[] {
+  if (samples.length === 0) return [];
+  if (samples.length <= n) return samples;
+  const out: number[] = [];
+  const size = samples.length / n;
+  for (let i = 0; i < n; i++) {
+    const start = Math.floor(i * size);
+    const end = Math.floor((i + 1) * size);
+    let sum = 0;
+    for (let j = start; j < end; j++) sum += samples[j];
+    out.push(Math.round(sum / Math.max(1, end - start)));
+  }
+  return out;
+}
 
 function VoiceCard({
   msg,
@@ -506,10 +555,10 @@ function VoiceCard({
         </Pressable>
 
         <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 3, height: 30 }}>
-          {BAR_HEIGHTS.map((h, i) => {
-            const seed = msg.id.charCodeAt(0) + i;
-            const height = ((h * (seed % 5 || 2)) % 22) + 6;
-            const passed = i / BAR_HEIGHTS.length <= progress && progress > 0;
+          {barsFor(msg).map((amp, i, arr) => {
+            // amp: 0~100 → 막대 높이 6~30px
+            const height = 6 + (amp / 100) * 24;
+            const passed = i / arr.length <= progress && progress > 0;
             return (
               <View
                 key={i}

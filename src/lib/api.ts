@@ -223,6 +223,7 @@ export async function sendVoiceMessage(input: {
   toUserId: string;
   localUri: string;
   duration: number;
+  waveform?: number[];
 }): Promise<void> {
   const ext = input.localUri.split('.').pop()?.split('?')[0] || 'm4a';
   const path = `${input.groupId}/${randomUUID()}.${ext}`;
@@ -241,6 +242,7 @@ export async function sendVoiceMessage(input: {
     to_user_id: input.toUserId,
     storage_path: path,
     duration: Math.round(input.duration),
+    waveform: input.waveform && input.waveform.length > 0 ? input.waveform : null,
   });
   if (error) {
     // 행 생성에 실패하면 고아 파일을 남기지 않습니다.

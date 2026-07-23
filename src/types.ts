@@ -76,6 +76,8 @@ export type VoiceMessage = {
   storage_path: string;
   duration: number;
   heard: boolean;
+  /** 녹음 중 수집한 진폭 샘플 (0~100). null 이면 데코용 막대로 표시 */
+  waveform: number[] | null;
   created_at: string;
 };
 
