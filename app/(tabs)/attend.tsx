@@ -1,15 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { RefreshControl, ScrollView, View } from 'react-native';
+import { Alert, RefreshControl, ScrollView, View } from 'react-native';
 
 import { FruitMark } from '../../src/components/FruitMark';
-import { Avatar, Empty, Loading, Sans, Serif } from '../../src/components/ui';
+import { Avatar, Button, Empty, Loading, Sans, Serif } from '../../src/components/ui';
 import {
+  AttendDay,
+  checkIn,
+  fetchAttendance,
   fetchFruitTotals,
   fetchMembers,
-  fetchPassagesInRange,
-  fetchQtDays,
-  QtDay,
 } from '../../src/lib/api';
+import { haptic } from '../../src/lib/haptics';
 import {
   addDays,
   currentWeekKeys,
@@ -29,26 +30,22 @@ export default function AttendScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [members, setMembers] = useState<MemberWithProfile[]>([]);
-  const [days, setDays] = useState<QtDay[]>([]);
-  const [passageDates, setPassageDates] = useState<string[]>([]);
+  const [days, setDays] = useState<AttendDay[]>([]);
   const [fruit, setFruit] = useState<Map<string, number>>(new Map());
+  const [checkingIn, setCheckingIn] = useState(false);
 
   const week = useMemo(() => currentWeekKeys(), []);
+  const today = dateKey();
 
   const load = useCallback(async () => {
     if (!groupId) return;
     const since = dateKey(addDays(new Date(), -90));
-    const [ms, ds, ps] = await Promise.all([
-      fetchMembers(groupId),
-      fetchQtDays(groupId, since),
-      fetchPassagesInRange(groupId, week[0], week[6]),
-    ]);
+    const [ms, ds] = await Promise.all([fetchMembers(groupId), fetchAttendance(groupId, since)]);
     setMembers(ms);
     setDays(ds);
-    setPassageDates(ps.map((p) => p.date));
     setFruit(await fetchFruitTotals(ms.map((m) => m.user_id)));
     setLoading(false);
-  }, [groupId, week]);
+  }, [groupId]);
 
   useEffect(() => {
     load();
@@ -63,10 +60,27 @@ export default function AttendScreen() {
     return map;
   }, [days]);
 
-  // 본문이 올라온 날만 분모로 셉니다.
-  const activeDays = week.filter((d) => passageDates.includes(d));
-  const possible = activeDays.length * members.length;
-  const actual = days.filter((d) => activeDays.includes(d.date)).length;
+  const myDays = (userId && daysByUser.get(userId)) || new Set<string>();
+  const checkedInToday = myDays.has(today);
+
+  const doCheckIn = async () => {
+    if (!groupId || checkedInToday) return;
+    setCheckingIn(true);
+    try {
+      await checkIn(groupId, today);
+      haptic.success();
+      await load();
+    } catch (e) {
+      Alert.alert('출석하지 못했어요', String(e instanceof Error ? e.message : e));
+    } finally {
+      setCheckingIn(false);
+    }
+  };
+
+  // 이번 주 출석률: 오늘까지의 날 × 인원을 분모로.
+  const daysSoFar = week.filter((d) => d <= today);
+  const possible = daysSoFar.length * members.length;
+  const actual = days.filter((d) => daysSoFar.includes(d.date)).length;
   const groupRate = possible === 0 ? 0 : Math.round((actual / possible) * 100);
 
   const topStreak = members.reduce(
@@ -99,9 +113,48 @@ export default function AttendScreen() {
         {weekRangeLabel(week)} · 소그룹 전체 참여율 {groupRate}%
       </Sans>
 
-      <View style={{ flexDirection: 'row', gap: 10, marginTop: 18, marginBottom: 12 }}>
-        <Stat value={`${groupRate}%`} label="주간 평균 참여율" color={colors.clay} />
-        <Stat value={`${topStreak}일`} label="최장 연속 묵상" color={colors.sage} />
+      {/* 오늘 출석 체크 */}
+      {checkedInToday ? (
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            backgroundColor: '#eef3e6',
+            borderWidth: 1,
+            borderColor: colors.lineWarm,
+            borderRadius: radius.md,
+            paddingVertical: 14,
+            marginTop: 16,
+          }}
+        >
+          <View
+            style={{
+              width: 22,
+              height: 22,
+              borderRadius: 11,
+              backgroundColor: colors.sage,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Sans style={{ color: colors.white, fontSize: 12 }}>✓</Sans>
+          </View>
+          <Sans style={{ fontSize: 14, color: '#5c6b4d' }}>오늘 출석 완료</Sans>
+        </View>
+      ) : (
+        <Button
+          label="오늘 출석 체크"
+          onPress={doCheckIn}
+          loading={checkingIn}
+          style={{ marginTop: 16, borderRadius: radius.md }}
+        />
+      )}
+
+      <View style={{ flexDirection: 'row', gap: 10, marginTop: 16, marginBottom: 12 }}>
+        <Stat value={`${groupRate}%`} label="주간 평균 출석률" color={colors.clay} />
+        <Stat value={`${topStreak}일`} label="최장 연속 출석" color={colors.sage} />
       </View>
 
       {/* 묵상 열매 — 잔잔한 크레딧 */}

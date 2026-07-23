@@ -128,6 +128,16 @@ export type Database = {
         },
         'user_id' | 'delta' | 'reason'
       >;
+      attendance: Table<
+        {
+          group_id: string;
+          user_id: string;
+          date: string;
+          source: string;
+          created_at: string;
+        },
+        'group_id' | 'user_id' | 'date'
+      >;
     };
     Views: {
       qt_days: {
@@ -142,6 +152,8 @@ export type Database = {
     Functions: {
       create_group: { Args: { group_name: string }; Returns: Group };
       join_group_by_code: { Args: { code: string }; Returns: Group };
+      check_in: { Args: { gid: string; d: string }; Returns: undefined };
+      spend_fruit: { Args: { amount: number; what: string }; Returns: number };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

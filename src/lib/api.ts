@@ -356,6 +356,44 @@ export async function clearGroupApiKey(groupId: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
+// ── 출석 ──────────────────────────────────────────────────────
+
+export type AttendDay = { user_id: string; date: string };
+
+export async function fetchAttendance(groupId: string, since: string): Promise<AttendDay[]> {
+  const rows = (unwrap(
+    await supabase
+      .from('attendance')
+      .select('user_id, date')
+      .eq('group_id', groupId)
+      .gte('date', since),
+  ) ?? []) as unknown as AttendDay[];
+  return rows;
+}
+
+/** 오늘 출석했는지 (QT 작성 포함) */
+export async function hasCheckedIn(
+  groupId: string,
+  userId: string,
+  date: string,
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('attendance')
+    .select('date')
+    .eq('group_id', groupId)
+    .eq('user_id', userId)
+    .eq('date', date)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return !!data;
+}
+
+/** 오늘 출석 체크 (QT 를 안 써도 참여로 기록) */
+export async function checkIn(groupId: string, date: string): Promise<void> {
+  const { error } = await supabase.rpc('check_in', { gid: groupId, d: date });
+  if (error) throw new Error(error.message);
+}
+
 // ── 묵상 열매 ─────────────────────────────────────────────────
 
 export async function fetchMyFruit(userId: string): Promise<number> {
