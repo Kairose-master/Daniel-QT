@@ -300,7 +300,12 @@ export async function fetchVerseText(groupId: string, ref: string): Promise<stri
     { body: { group_id: groupId, ref, verse_only: true } },
   );
   if (error) throw new Error(await extractFunctionError(error));
-  if (!data?.verse_text) throw new Error('구절을 불러오지 못했어요.');
+  if (!data?.verse_text) {
+    // 함수가 성공했는데 verse_text 가 없으면 대개 옛 버전이 배포된 상태입니다.
+    throw new Error(
+      '구절을 받지 못했어요. generate-devotion 함수를 최신으로 다시 배포했는지 확인해주세요.',
+    );
+  }
   return data.verse_text;
 }
 
