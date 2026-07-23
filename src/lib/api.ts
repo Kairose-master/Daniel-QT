@@ -288,3 +288,19 @@ export async function fetchGroup(groupId: string): Promise<Group> {
     await supabase.from('groups').select('*').eq('id', groupId).single(),
   ) as unknown as Group;
 }
+
+/** 소그룹에서 나가기 (RLS: 본인 멤버십만 삭제 가능) */
+export async function leaveGroup(groupId: string, userId: string): Promise<void> {
+  const { error } = await supabase
+    .from('group_members')
+    .delete()
+    .eq('group_id', groupId)
+    .eq('user_id', userId);
+  if (error) throw new Error(error.message);
+}
+
+/** 계정 삭제 (Edge Function delete-account 이 실제 처리) */
+export async function deleteAccount(): Promise<void> {
+  const { error } = await supabase.functions.invoke('delete-account');
+  if (error) throw new Error(error.message);
+}

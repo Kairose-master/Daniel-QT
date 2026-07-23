@@ -5,6 +5,8 @@ import { Alert, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar, Button, Field, Sans, Serif, TagLabel } from '../src/components/ui';
+import { deleteAccount, leaveGroup } from '../src/lib/api';
+import { haptic } from '../src/lib/haptics';
 import { useSession } from '../src/lib/session';
 import { colors, radius } from '../src/theme';
 
@@ -15,14 +17,77 @@ export default function Settings() {
     userId,
     memberships,
     activeGroup,
+    role,
     setActiveGroup,
     updateName,
+    refreshMemberships,
     signOut,
   } = useSession();
 
   const [name, setName] = useState(profile?.name ?? '');
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  const onLeaveGroup = () => {
+    if (!activeGroup || !userId) return;
+    Alert.alert(
+      `'${activeGroup.name}'에서 나갈까요?`,
+      role === 'leader'
+        ? '리더가 나가면 다른 멤버에게 리더가 넘어가요. 혼자라면 소그룹이 사라져요.'
+        : '다시 들어오려면 초대코드가 필요해요.',
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '나가기',
+          style: 'destructive',
+          onPress: async () => {
+            setBusy(true);
+            try {
+              await leaveGroup(activeGroup.id, userId);
+              await refreshMemberships();
+              haptic.success();
+              router.replace('/');
+            } catch (e) {
+              Alert.alert('나가지 못했어요', String(e instanceof Error ? e.message : e));
+            } finally {
+              setBusy(false);
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const onDeleteAccount = () => {
+    Alert.alert(
+      '정말 계정을 삭제할까요?',
+      '내 묵상·댓글·응원 음성이 모두 지워지고 되돌릴 수 없어요.',
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '계정 삭제',
+          style: 'destructive',
+          onPress: async () => {
+            setBusy(true);
+            try {
+              await deleteAccount();
+              haptic.success();
+              await signOut();
+              router.replace('/onboarding');
+            } catch (e) {
+              Alert.alert(
+                '삭제하지 못했어요',
+                `${e instanceof Error ? e.message : e}\n\ndelete-account Edge Function 배포가 필요할 수 있어요.`,
+              );
+            } finally {
+              setBusy(false);
+            }
+          },
+        },
+      ],
+    );
+  };
 
   const save = async () => {
     if (!name.trim()) return;
@@ -139,6 +204,14 @@ export default function Settings() {
           style={{ marginTop: 24 }}
         />
 
+        {activeGroup && (
+          <Pressable onPress={onLeaveGroup} disabled={busy} style={{ paddingVertical: 14 }}>
+            <Sans style={{ textAlign: 'center', fontSize: 13, color: colors.muted2 }}>
+              '{activeGroup.name}'에서 나가기
+            </Sans>
+          </Pressable>
+        )}
+
         <Pressable
           onPress={() => {
             Alert.alert('로그아웃할까요?', '', [
@@ -153,10 +226,18 @@ export default function Settings() {
               },
             ]);
           }}
-          style={{ paddingVertical: 18 }}
+          style={{ paddingVertical: 14 }}
         >
           <Sans style={{ textAlign: 'center', fontSize: 13, color: colors.danger }}>
             로그아웃
+          </Sans>
+        </Pressable>
+
+        <View style={{ height: 1, backgroundColor: colors.line, marginVertical: 8 }} />
+
+        <Pressable onPress={onDeleteAccount} disabled={busy} style={{ paddingVertical: 14 }}>
+          <Sans style={{ textAlign: 'center', fontSize: 12, color: colors.muted4 }}>
+            계정 삭제
           </Sans>
         </Pressable>
       </ScrollView>

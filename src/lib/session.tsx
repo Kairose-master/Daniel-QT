@@ -31,6 +31,7 @@ type SessionValue = {
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, name: string) => Promise<void>;
   signInWithKakao: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
 
   createGroup: (name: string) => Promise<Group>;
@@ -169,6 +170,11 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     throw new Error('카카오 로그인 응답을 해석하지 못했어요.');
   }, []);
 
+  const resetPassword = useCallback(async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim());
+    if (error) throw error;
+  }, []);
+
   const signOut = useCallback(async () => {
     await AsyncStorage.removeItem(ACTIVE_GROUP_KEY);
     await supabase.auth.signOut();
@@ -228,6 +234,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       signInWithEmail,
       signUpWithEmail,
       signInWithKakao,
+      resetPassword,
       signOut,
       createGroup,
       joinGroup,
@@ -245,6 +252,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       signInWithEmail,
       signUpWithEmail,
       signInWithKakao,
+      resetPassword,
       signOut,
       createGroup,
       joinGroup,

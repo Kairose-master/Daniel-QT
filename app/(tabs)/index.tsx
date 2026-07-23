@@ -29,6 +29,7 @@ import {
 } from '../../src/components/ui';
 import { addComment, saveMyEntry, setStamp } from '../../src/lib/api';
 import { dateKey, formatKoreanDate, formatKoreanTime } from '../../src/lib/date';
+import { haptic } from '../../src/lib/haptics';
 import { notifyGroup } from '../../src/lib/notifications';
 import { useSession } from '../../src/lib/session';
 import { useBoard } from '../../src/lib/useBoard';
@@ -77,6 +78,7 @@ export default function ThreadScreen() {
 
   const handleStamp = async (entryId: string, kind: StampKind | null) => {
     if (!userId) return;
+    haptic.light();
     try {
       await setStamp(entryId, userId, kind);
       await board.reload();
@@ -98,6 +100,7 @@ export default function ThreadScreen() {
   const submitEntry = async (reflection: string, prayer: string) => {
     if (!userId || !board.passage) return;
     await saveMyEntry({ passageId: board.passage.id, userId, reflection, prayer });
+    haptic.success();
     setWriteOpen(false);
     await board.reload();
     setExpandedId(userId);

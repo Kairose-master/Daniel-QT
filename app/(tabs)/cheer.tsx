@@ -31,6 +31,7 @@ import {
   VoiceView,
 } from '../../src/lib/api';
 import { formatDuration, timeAgo } from '../../src/lib/date';
+import { haptic } from '../../src/lib/haptics';
 import { notifyGroup } from '../../src/lib/notifications';
 import { useSession } from '../../src/lib/session';
 import { colors, radius } from '../../src/theme';
@@ -84,6 +85,7 @@ export default function CheerScreen() {
 
   // 녹음 시작 / 정지
   const toggleRecord = async () => {
+    haptic.medium();
     if (recState.isRecording) {
       await recorder.stop();
       const uri = recorder.uri;

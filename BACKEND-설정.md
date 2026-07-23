@@ -51,7 +51,19 @@ npx supabase functions deploy notify
   앱을 한 번 실행해 알림 권한을 허용하면 `push_tokens` 테이블에 토큰이 쌓입니다.
 - Expo Go 에서는 푸시가 동작하지 않습니다 (개발 빌드 필요).
 
-배포 후 두 함수가 잘 올라갔는지 확인:
+## 3-1. 계정 삭제 (앱스토어 심사 필수)
+
+내 설정 > "계정 삭제" 가 실제로 동작하게 합니다. (Apple 은 계정 생성 앱에
+계정 삭제 수단을 의무화합니다.)
+
+```
+npx supabase functions deploy delete-account
+```
+
+- 본인 토큰으로만 자기 계정을 지웁니다. 리더면 남은 멤버에게 리더를 이양하고,
+  혼자면 소그룹째 삭제합니다. 올린 음성 파일도 Storage 에서 정리합니다.
+
+배포 후 함수들이 잘 올라갔는지 확인:
 
 ```
 npx supabase functions list

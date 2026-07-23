@@ -86,7 +86,7 @@ function SplashStep({ onNext }: { onNext: () => void }) {
 // ── 2. 로그인 ─────────────────────────────────────────────────
 
 function LoginStep() {
-  const { signInWithEmail, signUpWithEmail, signInWithKakao } = useSession();
+  const { signInWithEmail, signUpWithEmail, signInWithKakao, resetPassword } = useSession();
   const [mode, setMode] = useState<'choose' | 'email'>('choose');
   const [isSignUp, setIsSignUp] = useState(false);
   const [name, setName] = useState('');
@@ -94,6 +94,22 @@ function LoginStep() {
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState<'kakao' | 'email' | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  const forgotPassword = async () => {
+    setError(null);
+    setNotice(null);
+    if (!email.trim()) {
+      setError('비밀번호를 재설정할 이메일을 먼저 입력해주세요.');
+      return;
+    }
+    try {
+      await resetPassword(email);
+      setNotice('비밀번호 재설정 메일을 보냈어요. 메일함을 확인해주세요.');
+    } catch (e) {
+      setError(messageOf(e));
+    }
+  };
 
   const submit = async () => {
     setError(null);
@@ -183,14 +199,26 @@ function LoginStep() {
               onPress={submit}
               loading={busy === 'email'}
             />
-            <Pressable onPress={() => setIsSignUp((v) => !v)} style={{ paddingVertical: 6 }}>
-              <Sans style={{ fontSize: 12, color: colors.clay, textAlign: 'center' }}>
-                {isSignUp ? '이미 계정이 있어요 · 로그인' : '처음이신가요? 이메일로 가입하기'}
-              </Sans>
-            </Pressable>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 14 }}>
+              <Pressable onPress={() => setIsSignUp((v) => !v)} style={{ paddingVertical: 6 }}>
+                <Sans style={{ fontSize: 12, color: colors.clay }}>
+                  {isSignUp ? '이미 계정이 있어요 · 로그인' : '처음이신가요? 가입하기'}
+                </Sans>
+              </Pressable>
+              {!isSignUp && (
+                <Pressable onPress={forgotPassword} style={{ paddingVertical: 6 }}>
+                  <Sans style={{ fontSize: 12, color: colors.muted }}>비밀번호 찾기</Sans>
+                </Pressable>
+              )}
+            </View>
           </View>
         )}
 
+        {notice && (
+          <Sans style={{ fontSize: 12, color: colors.sage, textAlign: 'center', lineHeight: 20 }}>
+            {notice}
+          </Sans>
+        )}
         {error && (
           <Sans
             style={{ fontSize: 12, color: colors.danger, textAlign: 'center', lineHeight: 20 }}

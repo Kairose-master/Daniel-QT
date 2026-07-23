@@ -5,6 +5,7 @@ import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } fr
 import { Avatar, Button, Empty, Field, Loading, Sans, Serif, TagLabel } from '../../src/components/ui';
 import { generateDevotion, savePassage } from '../../src/lib/api';
 import { dateKey, formatKoreanDate } from '../../src/lib/date';
+import { haptic } from '../../src/lib/haptics';
 import { notifyGroup } from '../../src/lib/notifications';
 import { useSession } from '../../src/lib/session';
 import { useBoard } from '../../src/lib/useBoard';
@@ -95,6 +96,7 @@ export default function AdminScreen() {
         userId,
       });
       setSavedOnce(true);
+      haptic.success();
       await board.reload();
       notifyGroup({
         groupId: activeGroup.id,
