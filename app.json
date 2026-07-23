@@ -9,7 +9,6 @@
     "userInterfaceStyle": "light",
     "backgroundColor": "#f6f1e8",
     "primaryColor": "#a86b4d",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.danielqt.app",
@@ -25,7 +24,6 @@
     "android": {
       "package": "com.danielqt.app",
       "versionCode": 1,
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "RECORD_AUDIO",
@@ -69,7 +67,8 @@
         {
           "color": "#a86b4d"
         }
-      ]
+      ],
+      "expo-asset"
     ],
     "extra": {
       "eas": {
