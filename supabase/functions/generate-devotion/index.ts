@@ -88,7 +88,10 @@ Deno.serve(async (req: Request) => {
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: 600,
+        max_tokens: 1024,
+        // Sonnet 5 는 기본적으로 thinking 이 켜져 max_tokens 를 다 쓰고 본문이
+        // 비어버릴 수 있어 끕니다. 짧은 묵상 글에는 사고 과정이 필요 없습니다.
+        thinking: { type: 'disabled' },
         messages: [{ role: 'user', content: prompt }],
       }),
     });

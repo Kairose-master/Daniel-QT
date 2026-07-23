@@ -304,9 +304,30 @@ export async function generateDevotion(
   }>('generate-devotion', {
     body: { group_id: groupId, ref, verse_text: verseText ?? null },
   });
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(await extractFunctionError(error));
   if (!data?.devotion) throw new Error('묵상 글을 받지 못했어요.');
   return data;
+}
+
+/**
+ * supabase.functions.invoke 는 non-2xx 를 "Edge function returned a non-2xx
+ * status code" 로 뭉개버립니다. 함수가 응답 본문에 담은 진짜 이유(error)를 꺼냅니다.
+ */
+async function extractFunctionError(error: unknown): Promise<string> {
+  const ctx = (error as { context?: unknown })?.context;
+  // FunctionsHttpError 는 context 에 원본 Response 를 담고 있습니다.
+  if (ctx && typeof (ctx as Response).json === 'function') {
+    try {
+      const body = await (ctx as Response).clone().json();
+      if (body?.error) return body.detail ? `${body.error}\n(${body.detail})` : body.error;
+    } catch {
+      try {
+        const text = await (ctx as Response).text();
+        if (text) return text;
+      } catch {}
+    }
+  }
+  return error instanceof Error ? error.message : String(error);
 }
 
 // ── 소그룹 AI 키 (리더 전용) ──────────────────────────────────
