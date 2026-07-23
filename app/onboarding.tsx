@@ -37,7 +37,7 @@ export default function Onboarding() {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#f1e6d2' }}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={{ flex: 1, paddingHorizontal: 30, paddingTop: 24, paddingBottom: 28 }}>
           {step === 'splash' && <SplashStep onNext={() => setStep('login')} />}
@@ -130,8 +130,9 @@ function LoginStep() {
 
   return (
     <ScrollView
-      contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between' }}
+      contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingBottom: 24 }}
       keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
     >
       <View style={{ alignItems: 'center', paddingTop: 40, paddingBottom: 28 }}>
         <LogoMark size={60} />
@@ -252,10 +253,11 @@ function GroupStep({ onSignOut }: { onSignOut: () => void }) {
 
   return (
     <ScrollView
-      contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between' }}
+      contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingBottom: 24 }}
       keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
     >
-      <View style={{ flex: 1, justifyContent: 'center', paddingVertical: 40 }}>
+      <View style={{ paddingVertical: 40 }}>
         {mode === 'join' ? (
           <>
             <Serif style={{ fontSize: 22, color: colors.ink900, lineHeight: 34 }}>
