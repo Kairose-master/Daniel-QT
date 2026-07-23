@@ -23,7 +23,7 @@ export async function fetchMembers(groupId: string): Promise<MemberWithProfile[]
   const rows = unwrap(
     await supabase
       .from('group_members')
-      .select('*, profile:profiles(*)')
+      .select('*, profile:profiles!group_members_user_id_fkey(*)')
       .eq('group_id', groupId)
       .order('joined_at', { ascending: true }),
   ) as unknown as MemberWithProfile[];
@@ -130,8 +130,10 @@ export async function savePassage(input: {
 
 // ── QT 나눔 ───────────────────────────────────────────────────
 
+// 뷰(qt_days, fruit_totals)가 user_id 를 노출하면서 profiles 관계가 모호해질 수
+// 있어, 임베드할 외래키를 명시적으로 지정합니다.
 const ENTRY_SELECT =
-  '*, profile:profiles(*), comments(*, profile:profiles(*)), stamps(*)';
+  '*, profile:profiles!qt_entries_user_id_fkey(*), comments(*, profile:profiles!comments_user_id_fkey(*)), stamps(*)';
 
 export async function fetchEntries(passageId: string): Promise<EntryView[]> {
   const rows = unwrap(
